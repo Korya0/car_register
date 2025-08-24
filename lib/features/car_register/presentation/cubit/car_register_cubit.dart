@@ -5,7 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import '../../data/google_sheets_service.dart';
 
-// States only - no events needed for Cubit
+// States
 abstract class CarRegisterState extends Equatable {
   const CarRegisterState();
 
@@ -21,25 +21,39 @@ class CarRegisterLoaded extends CarRegisterState {
   final List<String> carNumbers;
   final bool isConnected;
   final String? successMessage;
+  final bool isAddingNumber;
+  final bool isDeletingNumber;
 
   const CarRegisterLoaded({
     required this.carNumbers,
     required this.isConnected,
     this.successMessage,
+    this.isAddingNumber = false,
+    this.isDeletingNumber = false,
   });
 
   @override
-  List<Object?> get props => [carNumbers, isConnected, successMessage];
+  List<Object?> get props => [
+    carNumbers,
+    isConnected,
+    successMessage,
+    isAddingNumber,
+    isDeletingNumber,
+  ];
 
   CarRegisterLoaded copyWith({
     List<String>? carNumbers,
     bool? isConnected,
     String? successMessage,
+    bool? isAddingNumber,
+    bool? isDeletingNumber,
   }) {
     return CarRegisterLoaded(
       carNumbers: carNumbers ?? this.carNumbers,
       isConnected: isConnected ?? this.isConnected,
       successMessage: successMessage,
+      isAddingNumber: isAddingNumber ?? this.isAddingNumber,
+      isDeletingNumber: isDeletingNumber ?? this.isDeletingNumber,
     );
   }
 }
@@ -68,17 +82,14 @@ class CarRegisterCubit extends Cubit<CarRegisterState> {
     emit(CarRegisterLoading());
 
     try {
-      // Initialize connectivity service
       _connectivityService.initialize();
 
-      // Initialize Google Sheets
       final sheetsInitialized = await _sheetsService.initialize();
       if (!sheetsInitialized) {
         emit(const CarRegisterError('فشل في تهيئة Google Sheets'));
         return;
       }
 
-      // Load initial data
       await _loadCarNumbers();
     } catch (e) {
       emit(CarRegisterError('حدث خطأ أثناء التهيئة: $e'));
@@ -89,40 +100,46 @@ class CarRegisterCubit extends Cubit<CarRegisterState> {
     if (state is CarRegisterLoaded) {
       final currentState = state as CarRegisterLoaded;
 
+      // Show adding loading state
+      emit(currentState.copyWith(isAddingNumber: true));
+
       // Check connectivity
       if (!_connectivityService.isConnected) {
+        emit(currentState.copyWith(isAddingNumber: false));
         emit(CarRegisterError('مطلوب اتصال بالإنترنت'));
-        await _loadCarNumbers(); // Restore previous state
+        await _loadCarNumbers();
         return;
       }
 
       // Validate input (digits only)
       if (!RegExp(r'^\d+$').hasMatch(number)) {
+        emit(currentState.copyWith(isAddingNumber: false));
         emit(CarRegisterError('يُسمح بالأرقام فقط'));
-        await _loadCarNumbers(); // Restore previous state
+        await _loadCarNumbers();
         return;
       }
 
       try {
-        // Check if number already exists
         final exists = await _sheetsService.numberExists(number);
         if (exists) {
+          emit(currentState.copyWith(isAddingNumber: false));
           emit(CarRegisterError('هذه السيارة مسجلة بالفعل'));
-          await _loadCarNumbers(); // Restore previous state
+          await _loadCarNumbers();
           return;
         }
 
-        // Add number to sheets
         final success = await _sheetsService.addNumber(number);
         if (success) {
           await _loadCarNumbersWithSuccess('تم الحفظ بنجاح');
         } else {
+          emit(currentState.copyWith(isAddingNumber: false));
           emit(CarRegisterError('حدث خطأ ما، يرجى المحاولة مرة أخرى'));
-          await _loadCarNumbers(); // Restore previous state
+          await _loadCarNumbers();
         }
       } catch (e) {
+        emit(currentState.copyWith(isAddingNumber: false));
         emit(CarRegisterError('حدث خطأ ما، يرجى المحاولة مرة أخرى'));
-        await _loadCarNumbers(); // Restore previous state
+        await _loadCarNumbers();
       }
     }
   }
@@ -131,10 +148,14 @@ class CarRegisterCubit extends Cubit<CarRegisterState> {
     if (state is CarRegisterLoaded) {
       final currentState = state as CarRegisterLoaded;
 
+      // Show deleting loading state
+      emit(currentState.copyWith(isDeletingNumber: true));
+
       // Check connectivity
       if (!_connectivityService.isConnected) {
+        emit(currentState.copyWith(isDeletingNumber: false));
         emit(CarRegisterError('مطلوب اتصال بالإنترنت'));
-        await _loadCarNumbers(); // Restore previous state
+        await _loadCarNumbers();
         return;
       }
 
@@ -143,12 +164,14 @@ class CarRegisterCubit extends Cubit<CarRegisterState> {
         if (success) {
           await _loadCarNumbersWithSuccess('تم الحذف بنجاح');
         } else {
+          emit(currentState.copyWith(isDeletingNumber: false));
           emit(CarRegisterError('حدث خطأ ما، يرجى المحاولة مرة أخرى'));
-          await _loadCarNumbers(); // Restore previous state
+          await _loadCarNumbers();
         }
       } catch (e) {
+        emit(currentState.copyWith(isDeletingNumber: false));
         emit(CarRegisterError('حدث خطأ ما، يرجى المحاولة مرة أخرى'));
-        await _loadCarNumbers(); // Restore previous state
+        await _loadCarNumbers();
       }
     }
   }
@@ -161,7 +184,14 @@ class CarRegisterCubit extends Cubit<CarRegisterState> {
     try {
       final numbers = await _sheetsService.getAllNumbers();
       final isConnected = _connectivityService.isConnected;
-      emit(CarRegisterLoaded(carNumbers: numbers, isConnected: isConnected));
+      emit(
+        CarRegisterLoaded(
+          carNumbers: numbers,
+          isConnected: isConnected,
+          isAddingNumber: false,
+          isDeletingNumber: false,
+        ),
+      );
     } catch (e) {
       emit(CarRegisterError('فشل في تحميل البيانات: $e'));
     }
@@ -175,17 +205,23 @@ class CarRegisterCubit extends Cubit<CarRegisterState> {
         CarRegisterLoaded(
           carNumbers: numbers,
           isConnected: isConnected,
-          successMessage: successMessage,
+          successMessage: successMessage.contains('حذف')
+              ? null
+              : successMessage, // Only show success for add, not delete
+          isAddingNumber: false,
+          isDeletingNumber: false,
         ),
       );
 
-      // Clear success message after 3 seconds
-      Future.delayed(const Duration(seconds: 3), () {
-        if (state is CarRegisterLoaded) {
-          final currentState = state as CarRegisterLoaded;
-          emit(currentState.copyWith(successMessage: null));
-        }
-      });
+      // Clear success message after 2 seconds for add operations only
+      if (!successMessage.contains('حذف')) {
+        Future.delayed(const Duration(seconds: 2), () {
+          if (state is CarRegisterLoaded) {
+            final currentState = state as CarRegisterLoaded;
+            emit(currentState.copyWith(successMessage: null));
+          }
+        });
+      }
     } catch (e) {
       emit(CarRegisterError('فشل في تحميل البيانات: $e'));
     }
