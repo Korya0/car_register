@@ -55,6 +55,12 @@ dependencies:
 
   # Equatable for value equality
   equatable: ^2.0.5
+  get_it: ^8.2.0
+  firebase_core: ^4.0.0
+  cloud_firestore: ^6.0.0
+  google_fonts: ^6.3.0
+  flutter_screenutil: ^5.9.3
+  animate_do: ^4.2.0
 
 dev_dependencies:
   flutter_test:
