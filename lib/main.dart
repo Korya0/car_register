@@ -1,16 +1,13 @@
-import 'package:car_register_app/core/utils/di/injuction.dart';
+// main.dart
 import 'package:car_register_app/core/resources/theme/app_theme.dart';
 import 'package:car_register_app/core/utils/bloc/bloc_observer.dart';
-import 'package:car_register_app/features/loc_app/data/datasources/firebase_datasource.dart';
-import 'package:car_register_app/features/loc_app/data/repositories/firebase_repository.dart';
+import 'package:car_register_app/core/utils/di/injuction.dart';
+import 'package:car_register_app/features/car_register/presentation/cubit/car_register_cubit.dart';
 import 'package:car_register_app/features/loc_app/presentation/cubits/lock_app_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'core/resources/router/app_router.dart';
-import 'features/car_register/presentation/cubit/car_register_cubit.dart';
-import 'features/car_register/data/google_sheets_service.dart';
-import 'core/services/network/connectivity_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -27,15 +24,10 @@ class MyApp extends StatelessWidget {
     return MultiBlocProvider(
       providers: [
         BlocProvider<CarRegisterCubit>(
-          create: (context) => CarRegisterCubit(
-            sheetsService: GoogleSheetsService(),
-            connectivityService: ConnectivityService(),
-          ),
+          create: (context) => sl<CarRegisterCubit>(),
         ),
-        BlocProvider(
-          create: (_) =>
-              LockAppCubit(LockAppRepository(LockAppDataSource()))
-                ..loadBoolean(),
+        BlocProvider<LockAppCubit>(
+          create: (context) => sl<LockAppCubit>()..loadBoolean(),
         ),
       ],
       child: ScreenUtilInit(

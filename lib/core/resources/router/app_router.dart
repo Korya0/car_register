@@ -1,8 +1,10 @@
+// app_router.dart
 import 'package:car_register_app/core/resources/router/app_routes.dart';
 import 'package:car_register_app/core/resources/router/app_transitions.dart';
 import 'package:car_register_app/features/car_register/presentation/views/home_screen.dart';
 import 'package:car_register_app/features/loc_app/presentation/views/lock_app_view.dart';
 import 'package:car_register_app/features/loc_app/presentation/views/splash_view.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 class AppRouter {
@@ -37,5 +39,10 @@ class AppRouter {
         ),
       ),
     ],
+    errorPageBuilder: (context, state) => AppTransitions.size(
+      context: context,
+      state: state,
+      child: const Scaffold(body: Center(child: Text('Something went wrong!'))),
+    ),
   );
 }
