@@ -5,37 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import '../../data/google_sheets_service.dart';
 
-// Events
-abstract class CarRegisterEvent extends Equatable {
-  const CarRegisterEvent();
-
-  @override
-  List<Object?> get props => [];
-}
-
-class InitializeApp extends CarRegisterEvent {}
-
-class AddCarNumber extends CarRegisterEvent {
-  final String number;
-
-  const AddCarNumber(this.number);
-
-  @override
-  List<Object?> get props => [number];
-}
-
-class DeleteCarNumber extends CarRegisterEvent {
-  final String number;
-
-  const DeleteCarNumber(this.number);
-
-  @override
-  List<Object?> get props => [number];
-}
-
-class RefreshData extends CarRegisterEvent {}
-
-// States
+// States only - no events needed for Cubit
 abstract class CarRegisterState extends Equatable {
   const CarRegisterState();
 
@@ -83,7 +53,6 @@ class CarRegisterError extends CarRegisterState {
   List<Object?> get props => [message];
 }
 
-// Cubit
 class CarRegisterCubit extends Cubit<CarRegisterState> {
   final GoogleSheetsService _sheetsService;
   final ConnectivityService _connectivityService;
