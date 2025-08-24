@@ -113,108 +113,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     });
   }
 
-  /// 🔥 هنا الكود الجديد لعرض العربية
-  Widget _buildCarItem(
-    BuildContext context,
-    String number,
-    int index,
-    CarRegisterLoaded state,
-  ) {
-    _initializeSlideOutAnimation(number);
-    return SlideTransition(
-      position: _slideOutAnimations[number]!,
-      child: CustomFadeInRight(
-        duration: 600 + (index * 100),
-        child: Container(
-          margin: const EdgeInsets.only(bottom: 12),
-          decoration: BoxDecoration(
-            color: AppColors.backgroundSecondary,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(
-              color: AppColors.primary.withOpacity(0.2),
-              width: 1,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                blurRadius: 10,
-                offset: const Offset(0, 3),
-              ),
-            ],
-          ),
-          child: ListTile(
-            contentPadding: const EdgeInsets.all(16),
-            leading: Container(
-              width: 50,
-              height: 50,
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    AppColors.primary,
-                    AppColors.primary.withOpacity(0.7),
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ),
-                borderRadius: BorderRadius.circular(25),
-              ),
-              child: Center(
-                child: TextApp(
-                  text: '${index + 1}',
-                  type: TextAppType.bodyMedium,
-                  color: AppColors.backgroundPrimary,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 18,
-                ),
-              ),
-            ),
-            title: TextApp(
-              text: number,
-              type: TextAppType.bodyLarge,
-              color: AppColors.textAndIconPrimary,
-              fontWeight: FontWeight.bold,
-              fontSize: 20,
-            ),
-            subtitle: const TextApp(
-              text: 'رقم السيارة المسجلة',
-              type: TextAppType.bodySmall,
-              color: AppColors.textAndIconSecondary,
-              fontSize: 12,
-            ),
-            trailing: state.isDeletingNumber
-                ? const SizedBox(
-                    width: 30,
-                    height: 30,
-                    child: LoadingIndicator(),
-                  )
-                : SizedBox(
-                    width: 50,
-                    child: GestureDetector(
-                      onTap: () => _deleteCarNumber(number),
-                      child: Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: AppColors.red.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(
-                            color: AppColors.red.withOpacity(0.3),
-                            width: 1,
-                          ),
-                        ),
-                        child: const Icon(
-                          Icons.delete_outline,
-                          color: AppColors.red,
-                          size: 20,
-                        ),
-                      ),
-                    ),
-                  ),
-          ),
-        ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -248,11 +146,51 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
           }
 
           if (state is CarRegisterError) {
-            return Center(
-              child: TextApp(
-                text: state.message,
-                type: TextAppType.bodyLarge,
-                color: AppColors.red,
+            return SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: CustomFadeInUp(
+                duration: 500,
+                child: SizedBox(
+                  height: MediaQuery.of(context).size.height - 100,
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(32.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(
+                            Icons.error_outline,
+                            size: 80,
+                            color: AppColors.red,
+                          ),
+                          const SizedBox(height: 24),
+                          TextApp(
+                            text: state.message,
+                            type: TextAppType.bodyLarge,
+                            color: AppColors.textAndIconPrimary,
+                            textAlign: TextAlign.center,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          const SizedBox(height: 32),
+                          CustomButton(
+                            text: 'إعادة المحاولة',
+                            backgroundColor: AppColors.primary,
+                            textColor: AppColors.backgroundPrimary,
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 32,
+                              vertical: 16,
+                            ),
+                            onTap: () => context
+                                .read<CarRegisterCubit>()
+                                .initializeApp(),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
               ),
             );
           }
@@ -265,76 +203,155 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    /// الفورم
+                    // Input Form
                     CustomFadeInDown(
                       duration: 600,
-                      child: Form(
-                        key: _formKey,
-                        child: Column(
-                          children: [
-                            CustomTextFormField(
-                              controller: _controller,
-                              hintText: 'أدخل رقم السيارة',
-                              keyboardType: TextInputType.number,
-                              inputFormatters: [
-                                FilteringTextInputFormatter.digitsOnly,
-                              ],
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return 'يرجى إدخال رقم السيارة';
-                                }
-                                if (!RegExp(r'^\d+$').hasMatch(value)) {
-                                  return 'يُسمح بالأرقام فقط';
-                                }
-                                return null;
-                              },
-                              suffixIcon: const Icon(
-                                Icons.directions_car,
-                                color: AppColors.primary,
-                              ),
-                            ),
-                            const SizedBox(height: 20),
-                            CustomButton(
-                              text: 'حفظ السيارة',
-                              backgroundColor: AppColors.primary,
-                              textColor: AppColors.backgroundPrimary,
-                              isLoading: state.isAddingNumber,
-                              onTap: state.isAddingNumber
-                                  ? null
-                                  : () {
-                                      if (_formKey.currentState!.validate()) {
-                                        context
-                                            .read<CarRegisterCubit>()
-                                            .addCarNumber(
-                                              _controller.text.trim(),
-                                            );
-                                        _controller.clear();
-                                      }
-                                    },
+                      child: Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: AppColors.backgroundSecondary,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2),
+                              blurRadius: 15,
+                              offset: const Offset(0, 5),
                             ),
                           ],
+                        ),
+                        child: Form(
+                          key: _formKey,
+                          child: Column(
+                            children: [
+                              CustomTextFormField(
+                                controller: _controller,
+                                hintText: 'أدخل رقم السيارة',
+                                keyboardType: TextInputType.number,
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.digitsOnly,
+                                ],
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'يرجى إدخال رقم السيارة';
+                                  }
+                                  if (!RegExp(r'^\d+$').hasMatch(value)) {
+                                    return 'يُسمح بالأرقام فقط';
+                                  }
+                                  return null;
+                                },
+                                suffixIcon: const Icon(
+                                  Icons.directions_car,
+                                  color: AppColors.primary,
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              SizedBox(
+                                width: double.infinity,
+                                child: CustomButton(
+                                  text: 'حفظ السيارة',
+                                  backgroundColor: AppColors.primary,
+                                  textColor: AppColors.backgroundPrimary,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                  isLoading: state.isAddingNumber,
+                                  onTap: state.isAddingNumber
+                                      ? null
+                                      : () {
+                                          if (_formKey.currentState!
+                                              .validate()) {
+                                            context
+                                                .read<CarRegisterCubit>()
+                                                .addCarNumber(
+                                                  _controller.text.trim(),
+                                                );
+                                            _controller.clear();
+                                          }
+                                        },
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     ),
                     const SizedBox(height: 30),
 
-                    /// العنوان
-                    const TextApp(
-                      text: 'السيارات المسجلة',
-                      type: TextAppType.bodyLarge,
-                      color: AppColors.textAndIconPrimary,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
+                    // List Title
+                    CustomFadeInLeft(
+                      duration: 700,
+                      child: Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withOpacity(0.2),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Icon(
+                              Icons.list_alt,
+                              color: AppColors.primary,
+                              size: 24,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          const TextApp(
+                            text: 'السيارات المسجلة',
+                            type: TextAppType.bodyLarge,
+                            color: AppColors.textAndIconPrimary,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                        ],
+                      ),
                     ),
                     const SizedBox(height: 16),
 
-                    /// الليست
+                    // List View
                     state.carNumbers.isEmpty
-                        ? const Center(
-                            child: TextApp(
-                              text: 'لا توجد سيارات مسجلة',
-                              type: TextAppType.bodyLarge,
-                              color: AppColors.textAndIconSecondary,
+                        ? CustomFadeInUp(
+                            duration: 800,
+                            child: SizedBox(
+                              height: 300,
+                              child: Center(
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(32),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.backgroundSecondary,
+                                        borderRadius: BorderRadius.circular(20),
+                                        border: Border.all(
+                                          color: AppColors.primary.withOpacity(
+                                            0.3,
+                                          ),
+                                          width: 2,
+                                        ),
+                                      ),
+                                      child: const Icon(
+                                        Icons.directions_car_outlined,
+                                        size: 80,
+                                        color: AppColors.primary,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 20),
+                                    const TextApp(
+                                      text: 'لا توجد سيارات مسجلة',
+                                      type: TextAppType.bodyLarge,
+                                      color: AppColors.textAndIconPrimary,
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 20,
+                                    ),
+                                    const SizedBox(height: 12),
+                                    const TextApp(
+                                      text: 'ابدأ بإضافة رقم السيارة الأول',
+                                      type: TextAppType.bodyMedium,
+                                      color: AppColors.textAndIconSecondary,
+                                      fontSize: 16,
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
                           )
                         : ListView.builder(
@@ -343,11 +360,103 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                             itemCount: state.carNumbers.length,
                             itemBuilder: (context, index) {
                               final number = state.carNumbers[index];
-                              return _buildCarItem(
-                                context,
-                                number,
-                                index,
-                                state,
+                              _initializeSlideOutAnimation(number);
+                              return SlideTransition(
+                                position: _slideOutAnimations[number]!,
+                                child: CustomFadeInRight(
+                                  duration: 600 + (index * 100),
+                                  child: Container(
+                                    margin: const EdgeInsets.only(bottom: 12),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.backgroundSecondary,
+                                      borderRadius: BorderRadius.circular(16),
+                                      border: Border.all(
+                                        color: AppColors.primary.withOpacity(
+                                          0.2,
+                                        ),
+                                        width: 1,
+                                      ),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.1),
+                                          blurRadius: 10,
+                                          offset: const Offset(0, 3),
+                                        ),
+                                      ],
+                                    ),
+                                    child: ListTile(
+                                      contentPadding: const EdgeInsets.all(16),
+                                      leading: Container(
+                                        width: 50,
+                                        height: 50,
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            colors: [
+                                              AppColors.primary,
+                                              AppColors.primary.withOpacity(
+                                                0.7,
+                                              ),
+                                            ],
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            25,
+                                          ),
+                                        ),
+                                        child: Center(
+                                          child: TextApp(
+                                            text: '${index + 1}',
+                                            type: TextAppType.bodyMedium,
+                                            color: AppColors.backgroundPrimary,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 18,
+                                          ),
+                                        ),
+                                      ),
+                                      title: TextApp(
+                                        text: number,
+                                        type: TextAppType.bodyLarge,
+                                        color: AppColors.textAndIconPrimary,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 20,
+                                      ),
+                                      subtitle: const TextApp(
+                                        text: 'رقم السيارة المسجلة',
+                                        type: TextAppType.bodySmall,
+                                        color: AppColors.textAndIconSecondary,
+                                        fontSize: 12,
+                                      ),
+                                      trailing: state.isDeletingNumber
+                                          ? const LoadingIndicator()
+                                          : GestureDetector(
+                                              onTap: () =>
+                                                  _deleteCarNumber(number),
+                                              child: Container(
+                                                padding: const EdgeInsets.all(
+                                                  12,
+                                                ),
+                                                decoration: BoxDecoration(
+                                                  color: AppColors.red
+                                                      .withOpacity(0.1),
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
+                                                  border: Border.all(
+                                                    color: AppColors.red
+                                                        .withOpacity(0.3),
+                                                    width: 1,
+                                                  ),
+                                                ),
+                                                child: const Icon(
+                                                  Icons.delete_outline,
+                                                  color: AppColors.red,
+                                                  size: 20,
+                                                ),
+                                              ),
+                                            ),
+                                    ),
+                                  ),
+                                ),
                               );
                             },
                           ),

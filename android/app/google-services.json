@@ -1,0 +1,67 @@
+{
+  "project_info": {
+    "project_number": "228027381198",
+    "project_id": "carregisterapp",
+    "storage_bucket": "carregisterapp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:228027381198:android:47da0be62367119386e79f",
+        "android_client_info": {
+          "package_name": "com.example.car_log_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDI2J7iTJBL7IkkLg4pNdW1xOHqI1680ew"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:228027381198:android:8c192c90dc1a429d86e79f",
+        "android_client_info": {
+          "package_name": "com.example.car_register_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDI2J7iTJBL7IkkLg4pNdW1xOHqI1680ew"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:228027381198:android:4012ee15a62d4dc286e79f",
+        "android_client_info": {
+          "package_name": "com.example.plate_log"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDI2J7iTJBL7IkkLg4pNdW1xOHqI1680ew"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

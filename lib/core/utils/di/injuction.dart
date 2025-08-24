@@ -1,4 +1,5 @@
 import 'package:car_register_app/core/services/shared_pref/shared_pref.dart';
+import 'package:car_register_app/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:get_it/get_it.dart';
 
@@ -25,7 +26,7 @@ class SharedPrefService {
 class FirebaseService {
   Future<void> init() async {
     await Firebase.initializeApp(
-      //   options: DefaultFirebaseOptions.currentPlatform,
+      options: DefaultFirebaseOptions.currentPlatform,
     );
   }
 }
