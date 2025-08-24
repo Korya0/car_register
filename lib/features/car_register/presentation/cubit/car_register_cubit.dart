@@ -1,7 +1,9 @@
+// ignore_for_file: unused_local_variable
+
 import 'package:car_register_app/core/utils/connectivity_service.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
-import '../../data/services/google_sheets_service.dart';
+import '../../data/google_sheets_service.dart';
 
 // Events
 abstract class CarRegisterEvent extends Equatable {

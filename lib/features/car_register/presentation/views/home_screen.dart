@@ -1,5 +1,3 @@
-// ignore_for_file: deprecated_member_use
-
 import 'package:car_register_app/core/config/app_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -28,13 +26,6 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
-  void _addCarNumber() {
-    if (_formKey.currentState!.validate()) {
-      context.read<CarRegisterCubit>().addCarNumber(_controller.text.trim());
-      _controller.clear();
-    }
-  }
-
   void _deleteCarNumber(String number) {
     showDialog(
       context: context,
@@ -61,24 +52,16 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(AppConfig.backgroundColor),
       appBar: AppBar(
         title: Text(
-          AppConfig.appName,
+          'Car Register',
           style: const TextStyle(color: Colors.white),
         ),
         backgroundColor: Color(AppConfig.primaryColor),
         centerTitle: true,
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh, color: Colors.white),
-            onPressed: () {
-              context.read<CarRegisterCubit>().refreshData();
-            },
-          ),
-        ],
       ),
+
+      /// Body
       body: BlocConsumer<CarRegisterCubit, CarRegisterState>(
         listener: (context, state) {
           if (state is CarRegisterError) {
@@ -236,7 +219,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         const SizedBox(width: 12),
                         ElevatedButton(
-                          onPressed: _addCarNumber,
+                          onPressed: () {
+                            if (_formKey.currentState!.validate()) {
+                              context.read<CarRegisterCubit>().addCarNumber(
+                                _controller.text.trim(),
+                              );
+                              _controller.clear();
+                            }
+                          },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: Color(AppConfig.primaryColor),
                             padding: const EdgeInsets.symmetric(

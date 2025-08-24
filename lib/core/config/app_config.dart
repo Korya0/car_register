@@ -8,7 +8,6 @@ class AppConfig {
       'assets/carnumbersapp-469914-3fcef272fb5e.json';
 
   // App Constants
-  static const String appName = 'Car Register';
   static const String sheetName = 'Sheet1';
   static const String columnName = 'num';
 
