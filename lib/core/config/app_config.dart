@@ -11,11 +11,6 @@ class AppConfig {
   static const String sheetName = 'Sheet1';
   static const String columnName = 'num';
 
-  // Colors
-  static const int primaryColor = 0xFF2196F3;
-  static const int lightBlueColor = 0xFFE3F2FD;
-  static const int backgroundColor = 0xFFFFFFFF;
-
   // Delays
   static const int splashDelay = 2000;
 

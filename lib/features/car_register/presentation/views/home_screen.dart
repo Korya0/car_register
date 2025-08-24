@@ -1,7 +1,14 @@
 // ignore_for_file: deprecated_member_use
 
-import 'package:car_register_app/core/config/app_config.dart';
+import 'package:car_register_app/core/resources/theme/app_colors.dart';
+import 'package:car_register_app/core/widgets/animations/animate_do.dart';
+import 'package:car_register_app/core/widgets/common/custom_button.dart';
+import 'package:car_register_app/core/widgets/common/custom_text_form_field.dart';
+import 'package:car_register_app/core/widgets/common/text_app.dart';
+import 'package:car_register_app/core/widgets/ui_tools/loading_overlay.dart';
+import 'package:car_register_app/core/widgets/ui_tools/toast_message.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../cubit/car_register_cubit.dart';
 
@@ -12,9 +19,11 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   final TextEditingController _controller = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  final Map<String, AnimationController> _slideOutControllers = {};
+  final Map<String, Animation<Offset>> _slideOutAnimations = {};
 
   @override
   void initState() {
@@ -25,38 +34,183 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void dispose() {
     _controller.dispose();
+    for (final controller in _slideOutControllers.values) {
+      controller.dispose();
+    }
     super.dispose();
+  }
+
+  void _initializeSlideOutAnimation(String number) {
+    if (!_slideOutControllers.containsKey(number)) {
+      final controller = AnimationController(
+        duration: const Duration(milliseconds: 500),
+        vsync: this,
+      );
+      final animation = Tween<Offset>(
+        begin: Offset.zero,
+        end: const Offset(-1.5, 0),
+      ).animate(CurvedAnimation(parent: controller, curve: Curves.easeInBack));
+
+      _slideOutControllers[number] = controller;
+      _slideOutAnimations[number] = animation;
+    }
   }
 
   void _deleteCarNumber(String number) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: const Text(
-          'تأكيد الحذف',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        content: Text('هل تريد حذف الرقم $number؟'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: Text('إلغاء', style: TextStyle(color: Colors.grey[600])),
+      builder: (context) => CustomFadeInDown(
+        duration: 300,
+        child: AlertDialog(
+          backgroundColor: AppColors.backgroundSecondary,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
           ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              context.read<CarRegisterCubit>().deleteCarNumber(number);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
+          title: const TextApp(
+            text: 'تأكيد الحذف',
+            type: TextAppType.bodyLarge,
+            color: AppColors.textAndIconPrimary,
+            fontWeight: FontWeight.bold,
+          ),
+          content: TextApp(
+            text: 'هل تريد حذف الرقم $number؟',
+            type: TextAppType.bodyMedium,
+            color: AppColors.textAndIconSecondary,
+          ),
+          actions: [
+            CustomButton(
+              text: 'إلغاء',
+              backgroundColor: AppColors.backgroundPrimary,
+              textColor: AppColors.textAndIconSecondary,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              onTap: () => Navigator.of(context).pop(),
+            ),
+            const SizedBox(width: 8),
+            CustomButton(
+              text: 'حذف',
+              backgroundColor: AppColors.red,
+              textColor: AppColors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              onTap: () {
+                Navigator.of(context).pop();
+                _animateDeleteAndRemove(number);
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _animateDeleteAndRemove(String number) {
+    _initializeSlideOutAnimation(number);
+    final controller = _slideOutControllers[number]!;
+    controller.forward().then((_) {
+      context.read<CarRegisterCubit>().deleteCarNumber(number);
+      controller.dispose();
+      _slideOutControllers.remove(number);
+      _slideOutAnimations.remove(number);
+    });
+  }
+
+  /// 🔥 هنا الكود الجديد لعرض العربية
+  Widget _buildCarItem(
+    BuildContext context,
+    String number,
+    int index,
+    CarRegisterLoaded state,
+  ) {
+    _initializeSlideOutAnimation(number);
+    return SlideTransition(
+      position: _slideOutAnimations[number]!,
+      child: CustomFadeInRight(
+        duration: 600 + (index * 100),
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          decoration: BoxDecoration(
+            color: AppColors.backgroundSecondary,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: AppColors.primary.withOpacity(0.2),
+              width: 1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 10,
+                offset: const Offset(0, 3),
+              ),
+            ],
+          ),
+          child: ListTile(
+            contentPadding: const EdgeInsets.all(16),
+            leading: Container(
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    AppColors.primary,
+                    AppColors.primary.withOpacity(0.7),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(25),
+              ),
+              child: Center(
+                child: TextApp(
+                  text: '${index + 1}',
+                  type: TextAppType.bodyMedium,
+                  color: AppColors.backgroundPrimary,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
               ),
             ),
-            child: const Text('حذف', style: TextStyle(color: Colors.white)),
+            title: TextApp(
+              text: number,
+              type: TextAppType.bodyLarge,
+              color: AppColors.textAndIconPrimary,
+              fontWeight: FontWeight.bold,
+              fontSize: 20,
+            ),
+            subtitle: const TextApp(
+              text: 'رقم السيارة المسجلة',
+              type: TextAppType.bodySmall,
+              color: AppColors.textAndIconSecondary,
+              fontSize: 12,
+            ),
+            trailing: state.isDeletingNumber
+                ? const SizedBox(
+                    width: 30,
+                    height: 30,
+                    child: LoadingIndicator(),
+                  )
+                : SizedBox(
+                    width: 50,
+                    child: GestureDetector(
+                      onTap: () => _deleteCarNumber(number),
+                      child: Container(
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: AppColors.red.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(
+                            color: AppColors.red.withOpacity(0.3),
+                            width: 1,
+                          ),
+                        ),
+                        child: const Icon(
+                          Icons.delete_outline,
+                          color: AppColors.red,
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                  ),
           ),
-        ],
+        ),
       ),
     );
   }
@@ -64,201 +218,67 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: const Text(
-          'تسجيل السيارات',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+        title: CustomFadeInDown(
+          duration: 500,
+          child: const TextApp(
+            text: 'تسجيل السيارات',
+            type: TextAppType.bodyLarge,
+            color: AppColors.textAndIconPrimary,
+            fontWeight: FontWeight.bold,
+            fontSize: 20,
+          ),
         ),
-        backgroundColor: Color(AppConfig.primaryColor),
+        backgroundColor: AppColors.backgroundSecondary,
         centerTitle: true,
         elevation: 0,
       ),
       body: BlocConsumer<CarRegisterCubit, CarRegisterState>(
         listener: (context, state) {
           if (state is CarRegisterError) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Row(
-                  children: [
-                    const Icon(Icons.error, color: Colors.white),
-                    const SizedBox(width: 8),
-                    Expanded(child: Text(state.message)),
-                  ],
-                ),
-                backgroundColor: Colors.red,
-                duration: const Duration(seconds: 3),
-                behavior: SnackBarBehavior.floating,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-            );
+            ToastMessage.error(context, state.message);
+          } else if (state is CarRegisterLoaded &&
+              state.successMessage != null) {
+            ToastMessage.success(context, state.successMessage!);
           }
         },
         builder: (context, state) {
           if (state is CarRegisterLoading) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      Color(AppConfig.primaryColor),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  Text(
-                    'جاري التحميل...',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Color(AppConfig.primaryColor),
-                    ),
-                  ),
-                ],
-              ),
-            );
+            return const LoadingOverlay();
           }
 
           if (state is CarRegisterError) {
             return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(32.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(Icons.error_outline, size: 80, color: Colors.red[300]),
-                    const SizedBox(height: 24),
-                    Text(
-                      state.message,
-                      textAlign: TextAlign.center,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(height: 32),
-                    ElevatedButton(
-                      onPressed: () {
-                        context.read<CarRegisterCubit>().initializeApp();
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(AppConfig.primaryColor),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 32,
-                          vertical: 16,
-                        ),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: const Text(
-                        'إعادة المحاولة',
-                        style: TextStyle(color: Colors.white, fontSize: 16),
-                      ),
-                    ),
-                  ],
-                ),
+              child: TextApp(
+                text: state.message,
+                type: TextAppType.bodyLarge,
+                color: AppColors.red,
               ),
             );
           }
 
           if (state is CarRegisterLoaded) {
-            return Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Column(
-                children: [
-                  // Success Message
-                  if (state.successMessage != null)
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(16),
-                      margin: const EdgeInsets.only(bottom: 20),
-                      decoration: BoxDecoration(
-                        color: Colors.green[50],
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.green[300]!),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.check_circle,
-                            color: Colors.green[600],
-                            size: 24,
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              state.successMessage!,
-                              style: TextStyle(
-                                color: Colors.green[700],
-                                fontWeight: FontWeight.w600,
-                                fontSize: 16,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                  // Input Form
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
-                          blurRadius: 10,
-                          offset: const Offset(0, 5),
-                        ),
-                      ],
-                    ),
-                    child: Form(
-                      key: _formKey,
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: TextFormField(
+            return SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    /// الفورم
+                    CustomFadeInDown(
+                      duration: 600,
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          children: [
+                            CustomTextFormField(
                               controller: _controller,
+                              hintText: 'أدخل رقم السيارة',
                               keyboardType: TextInputType.number,
-                              textDirection: TextDirection.ltr,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w500,
-                              ),
-                              decoration: InputDecoration(
-                                hintText: 'أدخل رقم السيارة',
-                                hintStyle: TextStyle(color: Colors.grey[400]),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(
-                                    color: Colors.grey[300]!,
-                                  ),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(
-                                    color: Colors.grey[300]!,
-                                  ),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                  borderSide: BorderSide(
-                                    color: Color(AppConfig.primaryColor),
-                                    width: 2,
-                                  ),
-                                ),
-                                contentPadding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 16,
-                                ),
-                                prefixIcon: Icon(
-                                  Icons.directions_car,
-                                  color: Color(AppConfig.primaryColor),
-                                ),
-                              ),
+                              inputFormatters: [
+                                FilteringTextInputFormatter.digitsOnly,
+                              ],
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
                                   return 'يرجى إدخال رقم السيارة';
@@ -268,194 +288,76 @@ class _HomeScreenState extends State<HomeScreen> {
                                 }
                                 return null;
                               },
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          ElevatedButton(
-                            onPressed: state.isAddingNumber
-                                ? null
-                                : () {
-                                    if (_formKey.currentState!.validate()) {
-                                      context
-                                          .read<CarRegisterCubit>()
-                                          .addCarNumber(
-                                            _controller.text.trim(),
-                                          );
-                                      _controller.clear();
-                                    }
-                                  },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Color(AppConfig.primaryColor),
-                              disabledBackgroundColor: Colors.grey[300],
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 24,
-                                vertical: 18,
+                              suffixIcon: const Icon(
+                                Icons.directions_car,
+                                color: AppColors.primary,
                               ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              elevation: 2,
                             ),
-                            child: state.isAddingNumber
-                                ? const SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.white,
-                                      ),
-                                    ),
-                                  )
-                                : const Text(
-                                    'حفظ',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 30),
-
-                  // List Title
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.list_alt,
-                        color: Color(AppConfig.primaryColor),
-                        size: 28,
-                      ),
-                      const SizedBox(width: 12),
-                      Text(
-                        'السيارات المسجلة',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: Color(AppConfig.primaryColor),
+                            const SizedBox(height: 20),
+                            CustomButton(
+                              text: 'حفظ السيارة',
+                              backgroundColor: AppColors.primary,
+                              textColor: AppColors.backgroundPrimary,
+                              isLoading: state.isAddingNumber,
+                              onTap: state.isAddingNumber
+                                  ? null
+                                  : () {
+                                      if (_formKey.currentState!.validate()) {
+                                        context
+                                            .read<CarRegisterCubit>()
+                                            .addCarNumber(
+                                              _controller.text.trim(),
+                                            );
+                                        _controller.clear();
+                                      }
+                                    },
+                            ),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
+                    ),
+                    const SizedBox(height: 30),
 
-                  // List View
-                  Expanded(
-                    child: state.carNumbers.isEmpty
-                        ? Center(
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.directions_car_outlined,
-                                  size: 80,
-                                  color: Colors.grey[300],
-                                ),
-                                const SizedBox(height: 20),
-                                Text(
-                                  'لا توجد سيارات مسجلة',
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.grey[600],
-                                  ),
-                                ),
-                                const SizedBox(height: 12),
-                                Text(
-                                  'ابدأ بإضافة رقم السيارة الأول',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.grey[400],
-                                  ),
-                                ),
-                              ],
+                    /// العنوان
+                    const TextApp(
+                      text: 'السيارات المسجلة',
+                      type: TextAppType.bodyLarge,
+                      color: AppColors.textAndIconPrimary,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                    const SizedBox(height: 16),
+
+                    /// الليست
+                    state.carNumbers.isEmpty
+                        ? const Center(
+                            child: TextApp(
+                              text: 'لا توجد سيارات مسجلة',
+                              type: TextAppType.bodyLarge,
+                              color: AppColors.textAndIconSecondary,
                             ),
                           )
                         : ListView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
                             itemCount: state.carNumbers.length,
                             itemBuilder: (context, index) {
                               final number = state.carNumbers[index];
-                              return Container(
-                                margin: const EdgeInsets.only(bottom: 12),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(12),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.05),
-                                      blurRadius: 8,
-                                      offset: const Offset(0, 2),
-                                    ),
-                                  ],
-                                ),
-                                child: ListTile(
-                                  contentPadding: const EdgeInsets.all(16),
-                                  leading: Container(
-                                    width: 50,
-                                    height: 50,
-                                    decoration: BoxDecoration(
-                                      color: Color(AppConfig.primaryColor),
-                                      borderRadius: BorderRadius.circular(25),
-                                    ),
-                                    child: Center(
-                                      child: Text(
-                                        '${index + 1}',
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 18,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  title: Text(
-                                    number,
-                                    style: const TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  trailing: state.isDeletingNumber
-                                      ? const SizedBox(
-                                          width: 20,
-                                          height: 20,
-                                          child: CircularProgressIndicator(
-                                            strokeWidth: 2,
-                                          ),
-                                        )
-                                      : IconButton(
-                                          onPressed: () =>
-                                              _deleteCarNumber(number),
-                                          icon: Container(
-                                            padding: const EdgeInsets.all(8),
-                                            decoration: BoxDecoration(
-                                              color: Colors.red[50],
-                                              borderRadius:
-                                                  BorderRadius.circular(8),
-                                            ),
-                                            child: const Icon(
-                                              Icons.delete,
-                                              color: Colors.red,
-                                              size: 20,
-                                            ),
-                                          ),
-                                          tooltip: 'حذف الرقم',
-                                        ),
-                                ),
+                              return _buildCarItem(
+                                context,
+                                number,
+                                index,
+                                state,
                               );
                             },
                           ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             );
           }
 
-          return const Center(child: CircularProgressIndicator());
+          return const LoadingOverlay();
         },
       ),
     );
