@@ -1,20 +1,20 @@
-import 'package:flutter/material.dart';
+import 'package:car_register_app/core/router/app_routes.dart';
+import 'package:car_register_app/features/car_register/presentation/widgets/home_screen.dart';
+import 'package:car_register_app/features/car_register/presentation/widgets/splash_screen.dart';
 import 'package:go_router/go_router.dart';
-import '../../features/car_register/presentation/widgets/splash_screen.dart';
-import '../../features/car_register/presentation/widgets/home_screen.dart';
 
 class AppRouter {
   static final GoRouter router = GoRouter(
-    initialLocation: '/',
+    initialLocation: AppRoutes.splash,
     routes: [
       GoRoute(
-        path: '/',
-        name: '/',
+        path: AppRoutes.splash,
+        name: AppRoutes.splash,
         builder: (context, state) => const SplashScreen(),
       ),
       GoRoute(
-        path: '/home',
-        name: '/home',
+        path: AppRoutes.home,
+        name: AppRoutes.home,
         builder: (context, state) => const HomeScreen(),
       ),
     ],

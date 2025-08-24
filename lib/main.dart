@@ -24,7 +24,6 @@ class MyApp extends StatelessWidget {
         ),
       ],
       child: MaterialApp.router(
-        title: 'Car Register App',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
           primarySwatch: Colors.blue,
@@ -33,7 +32,6 @@ class MyApp extends StatelessWidget {
         ),
         routerConfig: AppRouter.router,
         builder: (context, child) {
-          // Force RTL for Arabic
           return Directionality(
             textDirection: TextDirection.rtl,
             child: child!,
