@@ -13,6 +13,10 @@ Future<void> _initServices() async {
   // SharedPref Service
   sl.registerLazySingleton<SharedPrefService>(() => SharedPrefService());
   await sl<SharedPrefService>().init();
+
+  // Firebase Service
+  sl.registerLazySingleton<FirebaseService>(() => FirebaseService());
+  await sl<FirebaseService>().init(); // 👈 دي اللي كانت ناقصة
 }
 
 /// Shared Preferences Service

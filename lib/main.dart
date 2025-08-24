@@ -1,6 +1,9 @@
 import 'package:car_register_app/core/utils/di/injuction.dart';
 import 'package:car_register_app/core/resources/theme/app_theme.dart';
 import 'package:car_register_app/core/utils/bloc/bloc_observer.dart';
+import 'package:car_register_app/features/loc_app/data/datasources/firebase_datasource.dart';
+import 'package:car_register_app/features/loc_app/data/repositories/firebase_repository.dart';
+import 'package:car_register_app/features/loc_app/presentation/cubits/lock_app_cubit.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -28,6 +31,11 @@ class MyApp extends StatelessWidget {
             sheetsService: GoogleSheetsService(),
             connectivityService: ConnectivityService(),
           ),
+        ),
+        BlocProvider(
+          create: (_) =>
+              LockAppCubit(LockAppRepository(LockAppDataSource()))
+                ..loadBoolean(),
         ),
       ],
       child: ScreenUtilInit(
