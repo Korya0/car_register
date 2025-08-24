@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:car_register_app/core/config/app_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

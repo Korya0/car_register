@@ -1,3 +1,5 @@
+// ignore_for_file: await_only_futures, avoid_print
+
 import 'package:car_register_app/core/config/app_config.dart';
 import 'package:gsheets/gsheets.dart';
 
