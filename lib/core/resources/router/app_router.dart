@@ -22,7 +22,10 @@ class AppRouter {
           state: state,
           child: BlocProvider<CarRegisterCubit>(
             create: (context) => sl<CarRegisterCubit>(),
-            child: const HomeView(),
+            child: GestureDetector(
+              onTap: () => FocusScope.of(context).unfocus(),
+              child: const HomeView(),
+            ),
           ),
         ),
       ),

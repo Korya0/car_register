@@ -1,4 +1,7 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:car_register_app/core/resources/theme/app_colors.dart';
+import 'package:car_register_app/core/utils/validators.dart';
 import 'package:car_register_app/core/widgets/animations/animate_do.dart';
 import 'package:car_register_app/core/widgets/common/custom_button.dart';
 import 'package:car_register_app/core/widgets/common/custom_text_form_field.dart';
@@ -6,6 +9,7 @@ import 'package:car_register_app/core/widgets/ui_tools/toast_message.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../cubit/car_register_cubit.dart';
 
 class CarNumberForm extends StatefulWidget {
@@ -39,7 +43,7 @@ class _CarNumberFormState extends State<CarNumberForm> {
           child: Column(
             children: [
               _buildTextField(),
-              const SizedBox(height: 20),
+              SizedBox(height: 20.h),
               _buildSubmitButton(),
             ],
           ),
@@ -48,7 +52,7 @@ class _CarNumberFormState extends State<CarNumberForm> {
     );
   }
 
-  /// بناء تصميم الحاوية
+  /// BuildContainerDecoration
   BoxDecoration _buildContainerDecoration() {
     return BoxDecoration(
       color: AppColors.backgroundSecondary,
@@ -63,40 +67,27 @@ class _CarNumberFormState extends State<CarNumberForm> {
     );
   }
 
-  /// بناء حقل إدخال النص
+  /// TextField
   Widget _buildTextField() {
     return CustomTextFormField(
       controller: _controller,
       hintText: 'أدخل رقم السيارة',
+
       keyboardType: TextInputType.number,
       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-      validator: _validateCarNumber,
+      validator: Validators.validateCarNumber,
       suffixIcon: const Icon(Icons.directions_car, color: AppColors.primary),
     );
   }
 
-  /// التحقق من صحة رقم السيارة
-  String? _validateCarNumber(String? value) {
-    if (value == null || value.isEmpty) {
-      return 'يرجى إدخال رقم السيارة';
-    }
-    if (!RegExp(r'^\d+$').hasMatch(value)) {
-      return 'يُسمح بالأرقام فقط';
-    }
-    if (value.length < 2) {
-      return 'رقم السيارة يجب أن يكون رقمين على الأقل';
-    }
-    return null;
-  }
-
-  /// بناء زر الإرسال
+  /// _buildSubmitButton
   Widget _buildSubmitButton() {
     return SizedBox(
       width: double.infinity,
       child: CustomButton(
         text: 'حفظ السيارة',
         backgroundColor: AppColors.primary,
-        textColor: AppColors.backgroundPrimary,
+        textColor: AppColors.textAndIconThritly,
         fontSize: 16,
         fontWeight: FontWeight.bold,
         isLoading: widget.state.isAddingNumber,
@@ -105,7 +96,7 @@ class _CarNumberFormState extends State<CarNumberForm> {
     );
   }
 
-  /// معالجة إرسال النموذج
+  /// _handleSubmit
   void _handleSubmit() {
     if (!_formKey.currentState!.validate()) return;
 
@@ -119,12 +110,12 @@ class _CarNumberFormState extends State<CarNumberForm> {
     _addCarNumber(carNumber);
   }
 
-  /// التحقق من وجود رقم السيارة
+  /// _isCarNumberExists
   bool _isCarNumberExists(String carNumber) {
     return widget.state.carNumbers.contains(carNumber);
   }
 
-  /// إضافة رقم السيارة
+  /// _addCarNumber
   void _addCarNumber(String carNumber) {
     context.read<CarRegisterCubit>().addCarNumber(carNumber);
     _controller.clear();
