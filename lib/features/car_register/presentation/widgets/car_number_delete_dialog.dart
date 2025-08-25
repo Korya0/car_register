@@ -3,6 +3,7 @@ import 'package:car_register_app/core/widgets/animations/animate_do.dart';
 import 'package:car_register_app/core/widgets/common/custom_button.dart';
 import 'package:car_register_app/core/widgets/common/text_app.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CarNumberDeleteDialog {
   /// عرض حوار تأكيد الحذف
@@ -57,15 +58,15 @@ class _DeleteConfirmationDialog extends StatelessWidget {
     return TextApp(
       text: 'هل تريد حذف الرقم $number؟',
       type: TextAppType.bodyMedium,
-      color: AppColors.textAndIconSecondary,
+      color: AppColors.textAndIconPrimary,
+      fontWeight: FontWeight.w400,
     );
   }
 
-  /// بناء أزرار الحوار
   List<Widget> _buildActions(BuildContext context) {
     return [
       _buildCancelButton(context),
-      const SizedBox(width: 8),
+      SizedBox(height: 18.h),
       _buildConfirmButton(context),
     ];
   }
