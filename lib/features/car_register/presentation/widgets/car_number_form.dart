@@ -71,14 +71,15 @@ class _CarNumberFormState extends State<CarNumberForm> {
   Widget _buildTextField() {
     return CustomTextFormField(
       controller: _controller,
-      hintText: 'أدخل رقم السيارة',
+      hintText: 'أدخل رقم اللوحه',
 
       keyboardType: TextInputType.number,
       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
       validator: Validators.validateCarNumber,
-      suffixIcon: const Icon(
-        Icons.directions_car,
-        color: AppColors.textAndIconPrimary,
+      suffixIcon: Icon(
+        Icons.onetwothree,
+        size: 50,
+        color: AppColors.textAndIconPrimary.withAlpha(100),
       ),
     );
   }
@@ -88,7 +89,7 @@ class _CarNumberFormState extends State<CarNumberForm> {
     return SizedBox(
       width: double.infinity,
       child: CustomButton(
-        text: 'حفظ السيارة',
+        text: 'حفظ اللوحه',
         backgroundColor: AppColors.primary,
         textColor: AppColors.textAndIconThritly,
         fontSize: 16,

@@ -29,7 +29,7 @@ class HomeView extends StatelessWidget {
       title: CustomFadeInDown(
         duration: 500,
         child: const TextApp(
-          text: 'تسجيل السيارات',
+          text: 'تسجيل اللوحات',
           type: TextAppType.bodyLarge,
           color: AppColors.textAndIconPrimary,
           fontWeight: FontWeight.bold,

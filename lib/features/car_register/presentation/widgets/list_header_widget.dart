@@ -15,10 +15,14 @@ class ListHeaderWidget extends StatelessWidget {
       duration: 700,
       child: Row(
         children: [
-          const Icon(Icons.list_alt, color: AppColors.primary, size: 28),
+          const Icon(
+            Icons.receipt_long_outlined,
+            color: AppColors.primary,
+            size: 28,
+          ),
           SizedBox(width: 12.w),
           TextApp(
-            text: 'السيارات المسجلة',
+            text: 'اللوحات المسجلة',
             type: TextAppType.bodyLarge,
             color: AppColors.textAndIconPrimary,
             fontWeight: FontWeight.bold,
