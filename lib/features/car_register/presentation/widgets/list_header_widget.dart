@@ -2,6 +2,7 @@ import 'package:car_register_app/core/resources/theme/app_colors.dart';
 import 'package:car_register_app/core/widgets/animations/animate_do.dart';
 import 'package:car_register_app/core/widgets/common/text_app.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ListHeaderWidget extends StatelessWidget {
   final List<String> carNumbers;
@@ -14,40 +15,30 @@ class ListHeaderWidget extends StatelessWidget {
       duration: 700,
       child: Row(
         children: [
-          _buildIcon(),
-          const SizedBox(width: 12),
-          _buildTitle(),
+          const Icon(Icons.list_alt, color: AppColors.primary, size: 28),
+          SizedBox(width: 12.w),
+          TextApp(
+            text: 'السيارات المسجلة',
+            type: TextAppType.bodyLarge,
+            color: AppColors.textAndIconPrimary,
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
           if (carNumbers.isNotEmpty) ...[const Spacer(), _buildCounter()],
         ],
       ),
     );
   }
 
-  /// بناء الأيقونة
-  Widget _buildIcon() {
-    return const Icon(Icons.list_alt, color: AppColors.primary, size: 28);
-  }
-
-  /// بناء العنوان
-  Widget _buildTitle() {
-    return const TextApp(
-      text: 'السيارات المسجلة',
-      type: TextAppType.bodyLarge,
-      color: AppColors.textAndIconPrimary,
-      fontWeight: FontWeight.bold,
-      fontSize: 18,
-    );
-  }
-
-  /// بناء عداد العناصر
+  /// buildCounter
   Widget _buildCounter() {
     return CircleAvatar(
-      backgroundColor: AppColors.primary,
+      backgroundColor: AppColors.textAndIconPrimary,
       radius: 16,
       child: TextApp(
         text: '${carNumbers.length}',
         type: TextAppType.bodySmall,
-        color: AppColors.backgroundPrimary,
+        color: AppColors.textAndIconThritly,
         fontWeight: FontWeight.bold,
       ),
     );

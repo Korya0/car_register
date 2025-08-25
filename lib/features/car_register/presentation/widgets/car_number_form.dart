@@ -76,7 +76,10 @@ class _CarNumberFormState extends State<CarNumberForm> {
       keyboardType: TextInputType.number,
       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
       validator: Validators.validateCarNumber,
-      suffixIcon: const Icon(Icons.directions_car, color: AppColors.primary),
+      suffixIcon: const Icon(
+        Icons.directions_car,
+        color: AppColors.textAndIconPrimary,
+      ),
     );
   }
 

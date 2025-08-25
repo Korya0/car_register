@@ -12,6 +12,7 @@ class CustomTextFormField extends StatelessWidget {
     this.obscureText = false,
     this.suffixIcon,
     this.inputFormatters,
+    this.onFieldSubmitted,
   });
 
   final TextEditingController controller;
@@ -21,6 +22,7 @@ class CustomTextFormField extends StatelessWidget {
   final bool obscureText;
   final Widget? suffixIcon;
   final List<TextInputFormatter>? inputFormatters;
+  final void Function(String)? onFieldSubmitted;
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +32,7 @@ class CustomTextFormField extends StatelessWidget {
       controller: controller,
       cursorColor: AppColors.primary,
       cursorErrorColor: AppColors.primary,
+      onFieldSubmitted: onFieldSubmitted,
 
       keyboardType: keyboardType,
       obscureText: obscureText,
@@ -41,7 +44,7 @@ class CustomTextFormField extends StatelessWidget {
       decoration: InputDecoration(
         hintText: hintText,
         hintStyle: theme.textTheme.bodyLarge!.copyWith(
-          color: AppColors.textAndIconSecondary,
+          color: AppColors.textAndIconSecondary.withAlpha(100),
           fontWeight: FontWeight.w600,
           fontSize: 16,
         ),
