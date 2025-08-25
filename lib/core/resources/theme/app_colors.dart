@@ -10,7 +10,7 @@ class AppColors {
 
   // Combined usage for convenience
   static const Color textAndIconPrimary = Color(0xFFffffff);
-  static const Color textAndIconSecondary = Color(0xFF7d7e83);
+  static const Color textAndIconSecondary = Color(0xFFf2c625);
   static const Color textAndIconThritly = Color(0xFF212529);
 
   static const Color white = Colors.white;
