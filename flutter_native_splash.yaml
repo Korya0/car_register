@@ -1,0 +1,21 @@
+flutter_native_splash:
+  image: assets/splash/splash.png
+
+  # الخلفية الأساسية
+  color: "#17426c"
+
+  # دعم الوضع الليلي (اختياري)
+  color_dark: "#17426c"
+  image_dark: assets/splash/splash.png
+
+  # إعدادات خاصة بأندرويد 12
+  android_12:
+    image: assets/splash/splash.png
+    icon_background_color: "#17426c"
+    image_dark: assets/splash/splash.png
+    icon_background_color_dark: "#17426c"
+
+  # المنصات
+  android: true
+  ios: true
+  web: false
