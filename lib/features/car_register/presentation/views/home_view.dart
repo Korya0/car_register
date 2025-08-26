@@ -91,7 +91,6 @@ class _HomeViewState extends State<HomeView> {
     final reversedCarNumbers = state.carNumbers.reversed.toList();
 
     if (_currentIndex == 0) {
-      // الصفحة الأولى -> تسجيل اللوحة
       return SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.all(12),

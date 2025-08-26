@@ -4,6 +4,7 @@ import 'package:car_register_app/core/services/network/connectivity_service.dart
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 import '../../data/google_sheets_service.dart';
+import 'package:car_register_app/core/utils/validators.dart';
 
 // States
 abstract class CarRegisterState extends Equatable {
@@ -112,7 +113,7 @@ class CarRegisterCubit extends Cubit<CarRegisterState> {
       }
 
       // Validate input (digits only)
-      if (!RegExp(r'^\d+$').hasMatch(number)) {
+      if (!Validators.isDigitsOnly(number)) {
         emit(currentState.copyWith(isAddingNumber: false));
         emit(CarRegisterError('يُسمح بالأرقام فقط'));
         await _loadCarNumbers();

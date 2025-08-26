@@ -7,6 +7,7 @@ import 'package:car_register_app/core/utils/validators.dart';
 import 'package:car_register_app/core/widgets/animations/animate_do.dart';
 import 'package:car_register_app/core/widgets/common/custom_button.dart';
 import 'package:car_register_app/core/widgets/common/custom_text_form_field.dart';
+import 'package:car_register_app/core/widgets/ui_tools/loading_overlay.dart';
 import 'package:car_register_app/core/widgets/ui_tools/toast_message.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -91,9 +92,7 @@ class _CarNumberFormState extends State<CarNumberForm> {
 
   void _addDigit(String digit) {
     if (_controller.text.length < _maxCarNumberLength) {
-      setState(() {
-        _controller.text += digit;
-      });
+      _controller.text += digit;
     } else {
       _showMaxLengthWarning();
     }
@@ -101,12 +100,10 @@ class _CarNumberFormState extends State<CarNumberForm> {
 
   void _deleteLastDigit() {
     if (_controller.text.isNotEmpty) {
-      setState(() {
-        _controller.text = _controller.text.substring(
-          0,
-          _controller.text.length - 1,
-        );
-      });
+      _controller.text = _controller.text.substring(
+        0,
+        _controller.text.length - 1,
+      );
     }
   }
 
@@ -164,9 +161,7 @@ class _CarNumberFormState extends State<CarNumberForm> {
   }
 
   void _clearAllDigits() {
-    setState(() {
-      _controller.clear();
-    });
+    _controller.clear();
   }
 
   void _showMaxLengthWarning() {
@@ -248,14 +243,7 @@ class CarSubmitButton extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 14),
         borderRadius: 12,
         child: isLoading
-            ? const SizedBox(
-                height: 20,
-                width: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                ),
-              )
+            ? LoadingIndicator()
             : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [

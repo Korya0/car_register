@@ -1,6 +1,10 @@
 // ignore_for_file: prefer_is_empty
 
 class Validators {
+  static final RegExp _digitsOnly = RegExp(r'^\d+$');
+
+  static bool isDigitsOnly(String value) => _digitsOnly.hasMatch(value);
+
   static String? validateCarNumber(String? value) {
     if (value == null || value.trim().isEmpty) {
       return 'يرجى إدخال رقم السيارة';
@@ -8,7 +12,7 @@ class Validators {
 
     final carNumber = value.trim();
 
-    if (!RegExp(r'^\d+$').hasMatch(carNumber)) {
+    if (!_digitsOnly.hasMatch(carNumber)) {
       return 'يُسمح بالأرقام فقط';
     }
 
