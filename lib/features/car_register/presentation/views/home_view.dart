@@ -15,12 +15,38 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import '../cubit/car_register_cubit.dart';
 
-class HomeView extends StatelessWidget {
+class HomeView extends StatefulWidget {
   const HomeView({super.key});
 
   @override
+  State<HomeView> createState() => _HomeViewState();
+}
+
+class _HomeViewState extends State<HomeView> {
+  int _currentIndex = 0;
+  CarRegisterState? _lastState;
+
+  @override
+  void initState() {
+    super.initState();
+    context.read<CarRegisterCubit>().initializeApp();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(appBar: _buildAppBar(), body: _HomeViewBody());
+    return Scaffold(
+      appBar: _buildAppBar(),
+      body: BlocConsumer<CarRegisterCubit, CarRegisterState>(
+        listener: (context, state) {
+          if (_lastState.runtimeType != state.runtimeType) {
+            ErrorHandler.handleError(context, state);
+          }
+          _lastState = state;
+        },
+        builder: _buildBody,
+      ),
+      bottomNavigationBar: _buildBottomNav(),
+    );
   }
 
   /// Build app bar
@@ -39,41 +65,8 @@ class HomeView extends StatelessWidget {
       centerTitle: true,
     );
   }
-}
 
-class _HomeViewBody extends StatefulWidget {
-  const _HomeViewBody();
-
-  @override
-  State<_HomeViewBody> createState() => _HomeViewBodyState();
-}
-
-class _HomeViewBodyState extends State<_HomeViewBody> {
-  CarRegisterState? _lastState;
-
-  @override
-  void initState() {
-    super.initState();
-    context.read<CarRegisterCubit>().initializeApp();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocConsumer<CarRegisterCubit, CarRegisterState>(
-      // listener
-      listener: (context, state) {
-        if (_lastState.runtimeType != state.runtimeType) {
-          ErrorHandler.handleError(context, state);
-        }
-        _lastState = state;
-      },
-
-      // builder
-      builder: _buildBody,
-    );
-  }
-
-  /// بناء محتوى الشاشة
+  /// Body
   Widget _buildBody(BuildContext context, CarRegisterState state) {
     if (state is CarRegisterLoading) {
       return const LoadingOverlay();
@@ -87,24 +80,31 @@ class _HomeViewBodyState extends State<_HomeViewBody> {
     }
 
     if (state is CarRegisterLoaded) {
-      return _buildLoadedContent(state);
+      return _buildPageContent(state);
     }
 
     return const LoadingOverlay();
   }
 
-  Widget _buildLoadedContent(CarRegisterLoaded state) {
+  /// محتوى الصفحات حسب bottom nav
+  Widget _buildPageContent(CarRegisterLoaded state) {
     final reversedCarNumbers = state.carNumbers.reversed.toList();
 
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
-      child: Padding(
-        padding: const EdgeInsets.all(12.0),
+    if (_currentIndex == 0) {
+      // الصفحة الأولى -> تسجيل اللوحة
+      return SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.all(12),
+        child: CarNumberForm(state: state),
+      );
+    } else {
+      // الصفحة الثانية -> عرض الأرقام
+      return SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.all(12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            CarNumberForm(state: state),
-            SizedBox(height: 30.h),
             ListHeaderWidget(carNumbers: state.carNumbers),
             SizedBox(height: 16.h),
             reversedCarNumbers.isEmpty
@@ -112,7 +112,20 @@ class _HomeViewBodyState extends State<_HomeViewBody> {
                 : CarNumbersList(numbers: reversedCarNumbers, state: state),
           ],
         ),
-      ),
+      );
+    }
+  }
+
+  /// Bottom Navigation
+  Widget _buildBottomNav() {
+    return BottomNavigationBar(
+      backgroundColor: AppColors.backgroundSecondary,
+      currentIndex: _currentIndex,
+      onTap: (index) => setState(() => _currentIndex = index),
+      items: const [
+        BottomNavigationBarItem(icon: Icon(Icons.add), label: 'تسجيل لوحة'),
+        BottomNavigationBarItem(icon: Icon(Icons.list), label: 'عرض اللوحات'),
+      ],
     );
   }
 }

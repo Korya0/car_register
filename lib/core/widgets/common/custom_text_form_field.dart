@@ -13,6 +13,7 @@ class CustomTextFormField extends StatelessWidget {
     this.suffixIcon,
     this.inputFormatters,
     this.onFieldSubmitted,
+    this.readOnly,
   });
 
   final TextEditingController controller;
@@ -23,6 +24,7 @@ class CustomTextFormField extends StatelessWidget {
   final Widget? suffixIcon;
   final List<TextInputFormatter>? inputFormatters;
   final void Function(String)? onFieldSubmitted;
+  final bool? readOnly;
 
   @override
   Widget build(BuildContext context) {
@@ -41,6 +43,7 @@ class CustomTextFormField extends StatelessWidget {
         fontWeight: FontWeight.w600,
         fontSize: 16,
       ),
+      readOnly: readOnly ?? false,
       decoration: InputDecoration(
         hintText: hintText,
         hintStyle: theme.textTheme.bodyLarge!.copyWith(
