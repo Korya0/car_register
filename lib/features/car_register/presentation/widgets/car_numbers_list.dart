@@ -19,14 +19,38 @@ class _CarNumbersListState extends State<CarNumbersList>
   final Map<String, AnimationController> _slideOutControllers = {};
   final Map<String, Animation<Offset>> _slideOutAnimations = {};
   String? _deletingNumber;
-  final Set<String> _selected = {};
+  final Set<String> _selected = <String>{};
 
   @override
   void dispose() {
+    // Properly dispose all animation controllers
     for (final controller in _slideOutControllers.values) {
       controller.dispose();
     }
+    _slideOutControllers.clear();
+    _slideOutAnimations.clear();
     super.dispose();
+  }
+
+  @override
+  void didUpdateWidget(CarNumbersList oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Clean up animations for removed numbers
+    final currentNumbers = widget.numbers.toSet();
+    final oldControllers = Map<String, AnimationController>.from(
+      _slideOutControllers,
+    );
+
+    for (final entry in oldControllers.entries) {
+      if (!currentNumbers.contains(entry.key)) {
+        entry.value.dispose();
+        _slideOutControllers.remove(entry.key);
+        _slideOutAnimations.remove(entry.key);
+      }
+    }
+
+    // Remove selected items that no longer exist
+    _selected.removeWhere((item) => !currentNumbers.contains(item));
   }
 
   @override
@@ -46,11 +70,17 @@ class _CarNumbersListState extends State<CarNumbersList>
 
   /// بناء عنصر رقم السيارة
   Widget _buildCarNumberItem(BuildContext context, int index) {
+    if (index >= widget.numbers.length) {
+      return const SizedBox.shrink();
+    }
+
     final number = widget.numbers[index];
     _initializeSlideOutAnimation(number);
 
     return SlideTransition(
-      position: _slideOutAnimations[number]!,
+      position:
+          _slideOutAnimations[number] ??
+          const AlwaysStoppedAnimation(Offset.zero),
       child: GestureDetector(
         onLongPress: () => _toggleSelect(number),
         onTap: () {
@@ -93,7 +123,7 @@ class _CarNumbersListState extends State<CarNumbersList>
 
   /// تهيئة أنيميشن الإنزلاق
   void _initializeSlideOutAnimation(String number) {
-    if (!_slideOutControllers.containsKey(number)) {
+    if (!_slideOutControllers.containsKey(number) && mounted) {
       final controller = AnimationController(
         duration: const Duration(milliseconds: 500),
         vsync: this,
@@ -110,6 +140,8 @@ class _CarNumbersListState extends State<CarNumbersList>
 
   /// حذف رقم السيارة
   void _deleteCarNumber(String number) {
+    if (!mounted) return;
+
     CarNumberDeleteDialog.show(
       context: context,
       number: number,
@@ -133,7 +165,7 @@ class _CarNumbersListState extends State<CarNumbersList>
             ),
           ),
           TextButton.icon(
-            onPressed: _confirmDeleteSelected,
+            onPressed: _selected.isEmpty ? null : _confirmDeleteSelected,
             icon: const Icon(Icons.delete_forever, color: Colors.red),
             label: const Text('حذف المحدد'),
           ),
@@ -143,6 +175,8 @@ class _CarNumbersListState extends State<CarNumbersList>
   }
 
   void _toggleSelect(String number) {
+    if (!mounted) return;
+
     setState(() {
       if (_selected.contains(number)) {
         _selected.remove(number);
@@ -153,9 +187,11 @@ class _CarNumbersListState extends State<CarNumbersList>
   }
 
   void _confirmDeleteSelected() {
-    if (_selected.isEmpty) return;
-    final numbers = _selected.toList();
+    if (_selected.isEmpty || !mounted) return;
+
+    final numbers = List<String>.from(_selected);
     final parentContext = context;
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -169,16 +205,22 @@ class _CarNumbersListState extends State<CarNumbersList>
           TextButton(
             onPressed: () {
               Navigator.of(context).pop();
-              parentContext
-                  .read<CarRegisterCubit>()
-                  .deleteMultiple(numbers)
-                  .then((_) {
-                    if (mounted) {
-                      setState(() {
-                        _selected.clear();
-                      });
-                    }
-                  });
+              if (mounted) {
+                parentContext
+                    .read<CarRegisterCubit>()
+                    .deleteMultiple(numbers)
+                    .then((_) {
+                      if (mounted) {
+                        setState(() {
+                          _selected.clear();
+                        });
+                      }
+                    })
+                    .catchError((error) {
+                      // Handle error if needed
+                      debugPrint('Error deleting multiple items: $error');
+                    });
+              }
             },
             child: const Text('حذف'),
           ),
@@ -188,25 +230,37 @@ class _CarNumbersListState extends State<CarNumbersList>
   }
 
   void _toggleSelectAll() {
+    if (!mounted) return;
+
     setState(() {
       if (_selected.length == widget.numbers.length) {
         _selected.clear();
       } else {
-        _selected
-          ..clear()
-          ..addAll(widget.numbers);
+        _selected.clear();
+        _selected.addAll(widget.numbers);
       }
     });
   }
 
   /// تأكيد الحذف
   void _confirmDelete(String number) {
+    if (!mounted) return;
+
     setState(() => _deletingNumber = number);
 
-    context.read<CarRegisterCubit>().deleteCarNumber(number).then((_) {
-      if (mounted) {
-        setState(() => _deletingNumber = null);
-      }
-    });
+    context
+        .read<CarRegisterCubit>()
+        .deleteCarNumber(number)
+        .then((_) {
+          if (mounted) {
+            setState(() => _deletingNumber = null);
+          }
+        })
+        .catchError((error) {
+          if (mounted) {
+            setState(() => _deletingNumber = null);
+          }
+          debugPrint('Error deleting item: $error');
+        });
   }
 }

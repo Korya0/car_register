@@ -1,5 +1,3 @@
-// Main Form Widget
-// car_number_form.dart
 // ignore_for_file: deprecated_member_use
 
 import 'package:car_register_app/core/resources/theme/app_colors.dart';
@@ -74,6 +72,8 @@ class _CarNumberFormState extends State<CarNumberForm> {
   }
 
   void _handleKeyPress(KeypadAction action, [String? value]) {
+    if (!mounted) return;
+
     switch (action) {
       case KeypadAction.digit:
         if (value != null) _addDigit(value);
@@ -92,7 +92,9 @@ class _CarNumberFormState extends State<CarNumberForm> {
 
   void _addDigit(String digit) {
     if (_controller.text.length < _maxCarNumberLength) {
-      _controller.text += digit;
+      setState(() {
+        _controller.text += digit;
+      });
     } else {
       _showMaxLengthWarning();
     }
@@ -100,15 +102,17 @@ class _CarNumberFormState extends State<CarNumberForm> {
 
   void _deleteLastDigit() {
     if (_controller.text.isNotEmpty) {
-      _controller.text = _controller.text.substring(
-        0,
-        _controller.text.length - 1,
-      );
+      setState(() {
+        _controller.text = _controller.text.substring(
+          0,
+          _controller.text.length - 1,
+        );
+      });
     }
   }
 
   void _handleSubmit() {
-    if (!_formKey.currentState!.validate()) return;
+    if (!mounted || !_formKey.currentState!.validate()) return;
 
     final carNumber = _controller.text.trim();
 
@@ -121,6 +125,8 @@ class _CarNumberFormState extends State<CarNumberForm> {
   }
 
   void _handleClearAllLongPress() async {
+    if (!mounted) return;
+
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) {
@@ -141,7 +147,7 @@ class _CarNumberFormState extends State<CarNumberForm> {
       },
     );
 
-    if (confirmed == true) {
+    if (confirmed == true && mounted) {
       context.read<CarRegisterCubit>().clearAll();
     }
   }
@@ -151,20 +157,28 @@ class _CarNumberFormState extends State<CarNumberForm> {
   }
 
   void _addCarNumber(String carNumber) {
+    if (!mounted) return;
     context.read<CarRegisterCubit>().addCarNumber(carNumber);
     _clearForm();
   }
 
   void _clearForm() {
-    _controller.clear();
+    if (!mounted) return;
+    setState(() {
+      _controller.clear();
+    });
     FocusScope.of(context).unfocus();
   }
 
   void _clearAllDigits() {
-    _controller.clear();
+    if (!mounted) return;
+    setState(() {
+      _controller.clear();
+    });
   }
 
   void _showMaxLengthWarning() {
+    if (!mounted) return;
     ToastMessage.error(context, 'الحد الأقصى $_maxCarNumberLength أرقام');
   }
 }
@@ -197,7 +211,6 @@ class CarNumberTextField extends StatelessWidget {
         LengthLimitingTextInputFormatter(8),
       ],
       validator: Validators.validateCarNumber,
-
       suffixIcon: Icon(
         suffixIcon,
         size: 28,
@@ -243,7 +256,7 @@ class CarSubmitButton extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 14),
         borderRadius: 12,
         child: isLoading
-            ? LoadingIndicator()
+            ? const LoadingIndicator()
             : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -253,7 +266,7 @@ class CarSubmitButton extends StatelessWidget {
                   ],
                   Text(
                     text,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
                       color: AppColors.textAndIconThritly,
@@ -306,32 +319,25 @@ class CustomKeypad extends StatelessWidget {
     final screenWidth = MediaQuery.of(context).size.width;
     final keySize = _calculateKeySize(screenWidth);
 
-    return Column(
-      children: [
-        GridView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: _keys.length,
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3,
-            mainAxisSpacing: keySpacing!,
-            crossAxisSpacing: keySpacing!,
-            childAspectRatio: 1.2,
-          ),
-          itemBuilder: (context, index) {
-            final key = _keys[index];
-            return KeypadButton(
-              keypadKey: key,
-              size: keySize,
-              borderRadius: keyBorderRadius!,
-              onTap: () => onKeyPressed(key.action, key.label),
-            );
-          },
-        ),
-        SizedBox(height: 12),
-
-        // Submit button separate from keypad
-      ],
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      itemCount: _keys.length,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        mainAxisSpacing: keySpacing!,
+        crossAxisSpacing: keySpacing!,
+        childAspectRatio: 1.2,
+      ),
+      itemBuilder: (context, index) {
+        final key = _keys[index];
+        return KeypadButton(
+          keypadKey: key,
+          size: keySize,
+          borderRadius: keyBorderRadius!,
+          onTap: () => onKeyPressed(key.action, key.label),
+        );
+      },
     );
   }
 
@@ -404,7 +410,6 @@ class _KeypadButtonState extends State<KeypadButton>
           child: GestureDetector(
             onTapDown: (_) => _handleTapDown(),
             onTapUp: (_) => _handleTapUp(),
-
             onTapCancel: _handleTapCancel,
             onTap: widget.onTap,
             child: Container(
@@ -435,7 +440,6 @@ class _KeypadButtonState extends State<KeypadButton>
   }
 
   Color _getButtonColor() {
-    // All buttons have the same color now
     return _isPressed ? AppColors.primary.withOpacity(0.8) : AppColors.primary;
   }
 
@@ -443,44 +447,40 @@ class _KeypadButtonState extends State<KeypadButton>
     if (widget.keypadKey.icon != null) {
       return Icon(
         widget.keypadKey.icon,
-        size: _getIconSize(),
+        size: 25,
         color: AppColors.backgroundPrimary,
       );
     }
 
     return Text(
       widget.keypadKey.label,
-      style: TextStyle(
-        fontSize: _getFontSize(),
+      style: const TextStyle(
+        fontSize: 25,
         fontWeight: FontWeight.bold,
         color: AppColors.backgroundPrimary,
       ),
     );
   }
 
-  double _getIconSize() {
-    // Made all icons smaller
-    return 25;
-  }
-
-  double _getFontSize() {
-    // Made font smaller
-    return 25;
-  }
-
   void _handleTapDown() {
-    setState(() => _isPressed = true);
-    _animationController.forward();
-    HapticFeedback.lightImpact();
+    if (mounted) {
+      setState(() => _isPressed = true);
+      _animationController.forward();
+      HapticFeedback.lightImpact();
+    }
   }
 
   void _handleTapUp() {
-    setState(() => _isPressed = false);
-    _animationController.reverse();
+    if (mounted) {
+      setState(() => _isPressed = false);
+      _animationController.reverse();
+    }
   }
 
   void _handleTapCancel() {
-    setState(() => _isPressed = false);
-    _animationController.reverse();
+    if (mounted) {
+      setState(() => _isPressed = false);
+      _animationController.reverse();
+    }
   }
 }

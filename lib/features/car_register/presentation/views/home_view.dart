@@ -29,7 +29,12 @@ class _HomeViewState extends State<HomeView> {
   @override
   void initState() {
     super.initState();
-    context.read<CarRegisterCubit>().initializeApp();
+    // Add post frame callback to ensure context is available
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<CarRegisterCubit>().initializeApp();
+      }
+    });
   }
 
   @override
@@ -38,7 +43,11 @@ class _HomeViewState extends State<HomeView> {
       appBar: _buildAppBar(),
       body: BlocConsumer<CarRegisterCubit, CarRegisterState>(
         listener: (context, state) {
-          if (_lastState.runtimeType != state.runtimeType) {
+          // More robust state comparison
+          if (_lastState?.runtimeType != state.runtimeType ||
+              (_lastState is CarRegisterError &&
+                  state is CarRegisterError &&
+                  (_lastState as CarRegisterError).message != state.message)) {
             ErrorHandler.handleError(context, state);
           }
           _lastState = state;
@@ -75,7 +84,11 @@ class _HomeViewState extends State<HomeView> {
     if (state is CarRegisterError) {
       return ErrorStateWidget(
         error: state,
-        onRetry: () => context.read<CarRegisterCubit>().initializeApp(),
+        onRetry: () {
+          if (mounted) {
+            context.read<CarRegisterCubit>().initializeApp();
+          }
+        },
       );
     }
 
@@ -88,7 +101,8 @@ class _HomeViewState extends State<HomeView> {
 
   /// محتوى الصفحات حسب bottom nav
   Widget _buildPageContent(CarRegisterLoaded state) {
-    final reversedCarNumbers = state.carNumbers.reversed.toList();
+    // Use toList() to create a new list instance for better performance
+    final reversedCarNumbers = List<String>.from(state.carNumbers.reversed);
 
     if (_currentIndex == 0) {
       return SingleChildScrollView(
@@ -120,7 +134,11 @@ class _HomeViewState extends State<HomeView> {
     return BottomNavigationBar(
       backgroundColor: AppColors.backgroundSecondary,
       currentIndex: _currentIndex,
-      onTap: (index) => setState(() => _currentIndex = index),
+      onTap: (index) {
+        if (mounted) {
+          setState(() => _currentIndex = index);
+        }
+      },
       items: const [
         BottomNavigationBarItem(icon: Icon(Icons.add), label: 'تسجيل لوحة'),
         BottomNavigationBarItem(icon: Icon(Icons.list), label: 'عرض اللوحات'),
