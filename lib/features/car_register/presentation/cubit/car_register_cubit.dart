@@ -176,6 +176,66 @@ class CarRegisterCubit extends Cubit<CarRegisterState> {
     }
   }
 
+  Future<void> deleteMultiple(List<String> numbers) async {
+    if (state is CarRegisterLoaded) {
+      final currentState = state as CarRegisterLoaded;
+
+      emit(currentState.copyWith(isDeletingNumber: true));
+
+      if (!_connectivityService.isConnected) {
+        emit(currentState.copyWith(isDeletingNumber: false));
+        emit(CarRegisterError('مطلوب اتصال بالإنترنت'));
+        await _loadCarNumbers();
+        return;
+      }
+
+      try {
+        final result = await _sheetsService.deleteNumbers(numbers);
+        if (result) {
+          await _loadCarNumbersWithSuccess('تم الحذف بنجاح');
+        } else {
+          emit(currentState.copyWith(isDeletingNumber: false));
+          emit(CarRegisterError('حدث خطأ ما، يرجى المحاولة مرة أخرى'));
+          await _loadCarNumbers();
+        }
+      } catch (e) {
+        emit(currentState.copyWith(isDeletingNumber: false));
+        emit(CarRegisterError('حدث خطأ ما، يرجى المحاولة مرة أخرى'));
+        await _loadCarNumbers();
+      }
+    }
+  }
+
+  Future<void> clearAll() async {
+    if (state is CarRegisterLoaded) {
+      final currentState = state as CarRegisterLoaded;
+
+      emit(currentState.copyWith(isDeletingNumber: true));
+
+      if (!_connectivityService.isConnected) {
+        emit(currentState.copyWith(isDeletingNumber: false));
+        emit(CarRegisterError('مطلوب اتصال بالإنترنت'));
+        await _loadCarNumbers();
+        return;
+      }
+
+      try {
+        final result = await _sheetsService.clearAll();
+        if (result) {
+          await _loadCarNumbersWithSuccess('تم الحذف بنجاح');
+        } else {
+          emit(currentState.copyWith(isDeletingNumber: false));
+          emit(CarRegisterError('حدث خطأ ما، يرجى المحاولة مرة أخرى'));
+          await _loadCarNumbers();
+        }
+      } catch (e) {
+        emit(currentState.copyWith(isDeletingNumber: false));
+        emit(CarRegisterError('حدث خطأ ما، يرجى المحاولة مرة أخرى'));
+        await _loadCarNumbers();
+      }
+    }
+  }
+
   Future<void> refreshData() async {
     await _loadCarNumbers();
   }

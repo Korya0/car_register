@@ -7,6 +7,7 @@ class CustomButton extends StatelessWidget {
   const CustomButton({
     required this.text,
     this.onTap,
+    this.onLongPress,
     this.backgroundColor = AppColors.backgroundSecondary,
     this.textColor,
     this.textType = TextAppType.bodyMedium,
@@ -21,6 +22,7 @@ class CustomButton extends StatelessWidget {
 
   final String text;
   final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
   final Color backgroundColor;
   final Color? textColor;
   final TextAppType textType;
@@ -35,6 +37,7 @@ class CustomButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
+      onLongPress: onLongPress,
       child: Container(
         padding:
             padding ?? const EdgeInsets.symmetric(horizontal: 20, vertical: 14),

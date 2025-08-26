@@ -221,6 +221,52 @@ class GoogleSheetsService {
     }
   }
 
+  /// حذف مجموعة أرقام
+  Future<bool> deleteNumbers(List<String> numbers) async {
+    if (_worksheet == null || numbers.isEmpty) return false;
+
+    try {
+      final target = numbers.map((e) => e.trim()).toSet();
+      final rows = await _worksheet!.values.allRows();
+      bool anyDeleted = false;
+
+      for (int i = rows.length - 1; i >= 1; i--) {
+        if (rows[i].isNotEmpty) {
+          final value = rows[i].first.toString().trim();
+          if (target.contains(value)) {
+            await _worksheet!.deleteRow(i + 1);
+            _cachedNumbers?.remove(value);
+            anyDeleted = true;
+          }
+        }
+      }
+
+      return anyDeleted;
+    } catch (e) {
+      print('Error deleting numbers: $e');
+      await _refreshCache();
+      return false;
+    }
+  }
+
+  /// مسح جميع الأرقام (مع الحفاظ على صف العنوان)
+  Future<bool> clearAll() async {
+    if (_worksheet == null) return false;
+    try {
+      final rows = await _worksheet!.values.allRows();
+      for (int i = rows.length - 1; i >= 2; i--) {
+        await _worksheet!.deleteRow(i);
+      }
+      _cachedNumbers = [];
+      _lastCacheUpdate = DateTime.now();
+      return true;
+    } catch (e) {
+      print('Error clearing all numbers: $e');
+      await _refreshCache();
+      return false;
+    }
+  }
+
   /// التحقق من وجود رقم
   Future<bool> numberExists(String number) async {
     if (number.trim().isEmpty) return false;

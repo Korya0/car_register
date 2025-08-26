@@ -53,6 +53,9 @@ class _CarNumberFormState extends State<CarNumberForm> {
             CarSubmitButton(
               isLoading: widget.state.isAddingNumber,
               onTap: widget.state.isAddingNumber ? null : _handleSubmit,
+              onLongPress: widget.state.isAddingNumber
+                  ? null
+                  : _handleClearAllLongPress,
             ),
             SizedBox(height: 18.h),
             CustomKeypad(onKeyPressed: _handleKeyPress),
@@ -118,6 +121,32 @@ class _CarNumberFormState extends State<CarNumberForm> {
     }
 
     _addCarNumber(carNumber);
+  }
+
+  void _handleClearAllLongPress() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('تأكيد مسح الكل'),
+          content: const Text('هل تريد حذف جميع الأرقام المسجلة؟'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('إلغاء'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('حذف الكل'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed == true) {
+      context.read<CarRegisterCubit>().clearAll();
+    }
   }
 
   bool _isCarNumberExists(String carNumber) {
@@ -190,6 +219,7 @@ class CarNumberTextField extends StatelessWidget {
 class CarSubmitButton extends StatelessWidget {
   final bool isLoading;
   final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
   final String text;
   final IconData? icon;
 
@@ -197,6 +227,7 @@ class CarSubmitButton extends StatelessWidget {
     super.key,
     required this.isLoading,
     required this.onTap,
+    this.onLongPress,
     this.text = 'حفظ اللوحة',
     this.icon,
   });
@@ -213,6 +244,7 @@ class CarSubmitButton extends StatelessWidget {
         fontWeight: FontWeight.bold,
         isLoading: isLoading,
         onTap: onTap,
+        onLongPress: onLongPress,
         padding: const EdgeInsets.symmetric(vertical: 14),
         borderRadius: 12,
         child: isLoading
