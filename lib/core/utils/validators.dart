@@ -1,3 +1,5 @@
+// ignore_for_file: prefer_is_empty
+
 class Validators {
   static String? validateCarNumber(String? value) {
     if (value == null || value.trim().isEmpty) {
@@ -10,8 +12,8 @@ class Validators {
       return 'يُسمح بالأرقام فقط';
     }
 
-    if (carNumber.length < 2 || carNumber.length > 8) {
-      return 'رقم السيارة يجب أن يكون بين رقمين إلى ثمانية';
+    if (carNumber.length < 1 || carNumber.length > 8) {
+      return 'رقم السيارة يجب أن يكون بين رقم واحد إلى ثمانية';
     }
 
     return null;
