@@ -1,10 +1,8 @@
-import 'package:car_register_app/core/constants/app_assets.dart';
 import 'package:car_register_app/core/resources/theme/app_colors.dart';
 import 'package:car_register_app/core/widgets/animations/animate_do.dart';
 import 'package:car_register_app/core/widgets/common/text_app.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:lottie/lottie.dart';
 
 class EmptyStateWidget extends StatelessWidget {
   const EmptyStateWidget({super.key});
@@ -17,10 +15,11 @@ class EmptyStateWidget extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Lottie.asset(
-              AppAssets.infoLottie,
-              height: 0.15.sh,
-              fit: BoxFit.cover,
+            SizedBox(height: 30.h),
+            Icon(
+              Icons.car_crash_outlined,
+              size: 0.15.sh,
+              color: AppColors.primary,
             ),
             SizedBox(height: 20.h),
             TextApp(
@@ -34,7 +33,7 @@ class EmptyStateWidget extends StatelessWidget {
             TextApp(
               text: 'ابدأ بإضافة رقم اللوحه ',
               type: TextAppType.bodyMedium,
-              color: AppColors.textAndIconSecondary,
+              color: AppColors.textAndIconSecondary.withAlpha(100),
               fontSize: 16,
             ),
           ],

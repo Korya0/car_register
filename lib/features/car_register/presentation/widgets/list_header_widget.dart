@@ -37,7 +37,7 @@ class ListHeaderWidget extends StatelessWidget {
   /// buildCounter
   Widget _buildCounter() {
     return CircleAvatar(
-      backgroundColor: AppColors.textAndIconPrimary,
+      backgroundColor: AppColors.textAndIconSecondary,
       radius: 16,
       child: TextApp(
         text: '${carNumbers.length}',

@@ -76,7 +76,7 @@ class _DeleteConfirmationDialog extends StatelessWidget {
     return CustomButton(
       text: 'إلغاء',
       backgroundColor: AppColors.backgroundPrimary,
-      textColor: AppColors.textAndIconSecondary,
+      textColor: AppColors.textAndIconPrimary,
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       onTap: () => Navigator.of(context).pop(),
     );

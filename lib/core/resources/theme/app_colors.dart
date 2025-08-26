@@ -6,11 +6,11 @@ class AppColors {
   static const Color backgroundSecondary = Color(0xFF25262a);
 
   // Primary accent
-  static const Color primary = Color(0xFFf2c625);
+  static const Color primary = Color(0xff63ef9c);
 
   // Combined usage for convenience
   static const Color textAndIconPrimary = Color(0xFFffffff);
-  static const Color textAndIconSecondary = Color(0xFFf2c625);
+  static const Color textAndIconSecondary = Color(0xff63ef9c);
   static const Color textAndIconThritly = Color(0xFF212529);
 
   static const Color white = Colors.white;
