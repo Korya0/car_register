@@ -1,5 +1,5 @@
 import 'package:car_register_app/features/car_register/presentation/widgets/car_number_card_widget.dart';
-import 'package:car_register_app/features/car_register/presentation/widgets/car_number_delete_dialog.dart';
+import 'package:car_register_app/features/car_register/presentation/widgets/pin_verification_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../cubit/car_register_cubit.dart';
@@ -16,42 +16,8 @@ class CarNumbersList extends StatefulWidget {
 
 class _CarNumbersListState extends State<CarNumbersList>
     with TickerProviderStateMixin {
-  final Map<String, AnimationController> _slideOutControllers = {};
-  final Map<String, Animation<Offset>> _slideOutAnimations = {};
-  String? _deletingNumber;
   final Set<String> _selected = <String>{};
-
-  @override
-  void dispose() {
-    // Properly dispose all animation controllers
-    for (final controller in _slideOutControllers.values) {
-      controller.dispose();
-    }
-    _slideOutControllers.clear();
-    _slideOutAnimations.clear();
-    super.dispose();
-  }
-
-  @override
-  void didUpdateWidget(CarNumbersList oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    // Clean up animations for removed numbers
-    final currentNumbers = widget.numbers.toSet();
-    final oldControllers = Map<String, AnimationController>.from(
-      _slideOutControllers,
-    );
-
-    for (final entry in oldControllers.entries) {
-      if (!currentNumbers.contains(entry.key)) {
-        entry.value.dispose();
-        _slideOutControllers.remove(entry.key);
-        _slideOutAnimations.remove(entry.key);
-      }
-    }
-
-    // Remove selected items that no longer exist
-    _selected.removeWhere((item) => !currentNumbers.contains(item));
-  }
+  String? _deletingNumber;
 
   @override
   Widget build(BuildContext context) {
@@ -68,106 +34,90 @@ class _CarNumbersListState extends State<CarNumbersList>
     );
   }
 
-  /// بناء عنصر رقم السيارة
   Widget _buildCarNumberItem(BuildContext context, int index) {
-    if (index >= widget.numbers.length) {
-      return const SizedBox.shrink();
-    }
-
     final number = widget.numbers[index];
-    _initializeSlideOutAnimation(number);
-
-    return SlideTransition(
-      position:
-          _slideOutAnimations[number] ??
-          const AlwaysStoppedAnimation(Offset.zero),
-      child: GestureDetector(
-        onLongPress: () => _toggleSelect(number),
-        onTap: () {
-          if (_selected.isNotEmpty) {
-            _toggleSelect(number);
-          }
-        },
-        child: Stack(
-          key: ValueKey(number),
-          children: [
-            CarNumberCard(
-              number: number,
-              index: index,
-              isDeleting: _deletingNumber == number,
-              onDelete: () => _deleteCarNumber(number),
+    return GestureDetector(
+      onLongPress: () => _toggleSelect(number),
+      onTap: () {
+        if (_selected.isNotEmpty) _toggleSelect(number);
+      },
+      child: Stack(
+        key: ValueKey(number),
+        children: [
+          CarNumberCard(
+            number: number,
+            isDeleting: _deletingNumber == number,
+            onDelete: () => _deleteCarNumber(number),
+            index: index,
+          ),
+          if (_selected.contains(number))
+            const Positioned(
+              top: 12,
+              left: 12,
+              child: CircleAvatar(
+                radius: 14,
+                backgroundColor: Colors.blue,
+                child: Icon(Icons.check, size: 18, color: Colors.white),
+              ),
             ),
-            if (_selected.contains(number)) ...[
-              const Positioned.fill(
-                child: IgnorePointer(
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(color: Color(0x22007AFF)),
-                  ),
-                ),
-              ),
-              const Positioned(
-                top: 12,
-                left: 12,
-                child: CircleAvatar(
-                  radius: 12,
-                  backgroundColor: Color(0xFF007AFF),
-                  child: Icon(Icons.check, size: 16, color: Colors.white),
-                ),
-              ),
-            ],
-          ],
-        ),
+        ],
       ),
     );
   }
 
-  /// تهيئة أنيميشن الإنزلاق
-  void _initializeSlideOutAnimation(String number) {
-    if (!_slideOutControllers.containsKey(number) && mounted) {
-      final controller = AnimationController(
-        duration: const Duration(milliseconds: 500),
-        vsync: this,
-      );
-      final animation = Tween<Offset>(
-        begin: Offset.zero,
-        end: const Offset(-1.5, 0),
-      ).animate(CurvedAnimation(parent: controller, curve: Curves.easeInBack));
-
-      _slideOutControllers[number] = controller;
-      _slideOutAnimations[number] = animation;
-    }
-  }
-
-  /// حذف رقم السيارة
-  void _deleteCarNumber(String number) {
-    if (!mounted) return;
-
-    CarNumberDeleteDialog.show(
-      context: context,
-      number: number,
-      onConfirm: () => _confirmDelete(number),
-    );
-  }
-
   Widget _buildSelectionBar() {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.blue.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.blue.withOpacity(0.3)),
+      ),
       child: Row(
         children: [
-          Text('المحدد: ${_selected.length}'),
-          const Spacer(),
-          TextButton(
-            onPressed: _toggleSelectAll,
+          CircleAvatar(
+            radius: 12,
+            backgroundColor: Colors.blue,
             child: Text(
+              '${_selected.length}',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            'محدد',
+            style: TextStyle(
+              color: Colors.blue.shade700,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+          const Spacer(),
+          TextButton.icon(
+            onPressed: _toggleSelectAll,
+            icon: Icon(
+              _selected.length == widget.numbers.length
+                  ? Icons.deselect
+                  : Icons.select_all,
+              size: 18,
+              color: Colors.blue.shade700,
+            ),
+            label: Text(
               _selected.length == widget.numbers.length
                   ? 'إلغاء الكل'
                   : 'تحديد الكل',
+              style: TextStyle(color: Colors.blue.shade700),
             ),
           ),
+          const SizedBox(width: 8),
           TextButton.icon(
             onPressed: _selected.isEmpty ? null : _confirmDeleteSelected,
-            icon: const Icon(Icons.delete_forever, color: Colors.red),
-            label: const Text('حذف المحدد'),
+            icon: const Icon(Icons.delete_forever, color: Colors.red, size: 18),
+            label: const Text('حذف', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
@@ -175,53 +125,53 @@ class _CarNumbersListState extends State<CarNumbersList>
   }
 
   void _toggleSelect(String number) {
-    if (!mounted) return;
-
     setState(() {
-      if (_selected.contains(number)) {
+      if (_selected.contains(number))
         _selected.remove(number);
-      } else {
+      else
         _selected.add(number);
-      }
     });
   }
 
-  void _confirmDeleteSelected() {
-    if (_selected.isEmpty || !mounted) return;
+  void _toggleSelectAll() {
+    setState(() {
+      if (_selected.length == widget.numbers.length)
+        _selected.clear();
+      else
+        _selected.addAll(widget.numbers);
+    });
+  }
 
-    final numbers = List<String>.from(_selected);
-    final parentContext = context;
-
+  void _deleteCarNumber(String number) {
+    if (!mounted) return;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('تأكيد الحذف'),
-        content: Text('هل تريد حذف ${numbers.length} عنصر؟'),
+        title: Row(
+          children: const [
+            Icon(Icons.warning, color: Colors.orange),
+            SizedBox(width: 8),
+            Text('تأكيد الحذف'),
+          ],
+        ),
+        content: Text(
+          'هل تريد حذف الرقم $number؟',
+          style: const TextStyle(fontSize: 16),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
             child: const Text('إلغاء'),
           ),
-          TextButton(
+          ElevatedButton(
             onPressed: () {
               Navigator.of(context).pop();
-              if (mounted) {
-                parentContext
-                    .read<CarRegisterCubit>()
-                    .deleteMultiple(numbers)
-                    .then((_) {
-                      if (mounted) {
-                        setState(() {
-                          _selected.clear();
-                        });
-                      }
-                    })
-                    .catchError((error) {
-                      // Handle error if needed
-                      debugPrint('Error deleting multiple items: $error');
-                    });
-              }
+              _confirmDelete(number);
             },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
             child: const Text('حذف'),
           ),
         ],
@@ -229,38 +179,61 @@ class _CarNumbersListState extends State<CarNumbersList>
     );
   }
 
-  void _toggleSelectAll() {
-    if (!mounted) return;
-
-    setState(() {
-      if (_selected.length == widget.numbers.length) {
-        _selected.clear();
-      } else {
-        _selected.clear();
-        _selected.addAll(widget.numbers);
-      }
-    });
-  }
-
-  /// تأكيد الحذف
   void _confirmDelete(String number) {
-    if (!mounted) return;
-
     setState(() => _deletingNumber = number);
-
     context
         .read<CarRegisterCubit>()
         .deleteCarNumber(number)
         .then((_) {
-          if (mounted) {
-            setState(() => _deletingNumber = null);
-          }
+          if (mounted) setState(() => _deletingNumber = null);
         })
         .catchError((error) {
-          if (mounted) {
-            setState(() => _deletingNumber = null);
-          }
+          if (mounted) setState(() => _deletingNumber = null);
           debugPrint('Error deleting item: $error');
         });
+  }
+
+  void _confirmDeleteSelected() async {
+    if (_selected.isEmpty) return;
+    final numbers = List<String>.from(_selected);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Row(
+          children: const [
+            Icon(Icons.warning, color: Colors.orange),
+            SizedBox(width: 8),
+            Text('تأكيد الحذف'),
+          ],
+        ),
+        content: Text(
+          'هل تريد حذف ${numbers.length} عنصر محدد؟',
+          style: const TextStyle(fontSize: 16),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('إلغاء'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
+            child: const Text('متابعة'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      final pinVerified = await PinVerificationDialog.show(context);
+      if (pinVerified && mounted) {
+        context.read<CarRegisterCubit>().deleteMultiple(numbers).then((_) {
+          if (mounted) setState(() => _selected.clear());
+        });
+      }
+    }
   }
 }

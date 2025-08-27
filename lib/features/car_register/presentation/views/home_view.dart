@@ -129,7 +129,7 @@ class _HomeViewState extends State<HomeView> {
     }
   }
 
-  /// Bottom Navigation
+  /// Bottom Navigation - النصوص محذوفة
   Widget _buildBottomNav() {
     return BottomNavigationBar(
       backgroundColor: AppColors.backgroundSecondary,
@@ -139,9 +139,12 @@ class _HomeViewState extends State<HomeView> {
           setState(() => _currentIndex = index);
         }
       },
+      type: BottomNavigationBarType.fixed,
+      showSelectedLabels: false,
+      showUnselectedLabels: false,
       items: const [
-        BottomNavigationBarItem(icon: Icon(Icons.add), label: 'تسجيل لوحة'),
-        BottomNavigationBarItem(icon: Icon(Icons.list), label: 'عرض اللوحات'),
+        BottomNavigationBarItem(icon: Icon(Icons.add, size: 28), label: ''),
+        BottomNavigationBarItem(icon: Icon(Icons.list, size: 28), label: ''),
       ],
     );
   }
