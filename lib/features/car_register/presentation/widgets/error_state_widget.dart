@@ -1,3 +1,4 @@
+// error_state_widget.dart
 import 'package:car_register_app/core/resources/theme/app_colors.dart';
 import 'package:car_register_app/core/widgets/animations/animate_do.dart';
 import 'package:car_register_app/core/widgets/common/custom_button.dart';
@@ -43,7 +44,6 @@ class ErrorStateWidget extends StatelessWidget {
     );
   }
 
-  /// بناء أيقونة الخطأ
   Widget _buildErrorIcon() {
     return const Icon(
       Icons.warning_amber_rounded,
@@ -52,7 +52,6 @@ class ErrorStateWidget extends StatelessWidget {
     );
   }
 
-  /// بناء رسالة الخطأ
   Widget _buildErrorMessage() {
     return TextApp(
       text: error.message,
@@ -63,7 +62,6 @@ class ErrorStateWidget extends StatelessWidget {
     );
   }
 
-  /// بناء زر إعادة المحاولة
   Widget _buildRetryButton() {
     return CustomButton(
       text: '🔄 إعادة المحاولة',

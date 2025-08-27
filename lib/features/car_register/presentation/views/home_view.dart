@@ -29,7 +29,6 @@ class _HomeViewState extends State<HomeView> {
   @override
   void initState() {
     super.initState();
-    // Add post frame callback to ensure context is available
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         context.read<CarRegisterCubit>().initializeApp();
@@ -43,7 +42,6 @@ class _HomeViewState extends State<HomeView> {
       appBar: _buildAppBar(),
       body: BlocConsumer<CarRegisterCubit, CarRegisterState>(
         listener: (context, state) {
-          // More robust state comparison
           if (_lastState?.runtimeType != state.runtimeType ||
               (_lastState is CarRegisterError &&
                   state is CarRegisterError &&
@@ -99,9 +97,8 @@ class _HomeViewState extends State<HomeView> {
     return const LoadingOverlay();
   }
 
-  /// محتوى الصفحات حسب bottom nav
+  /// Page content based on bottom nav
   Widget _buildPageContent(CarRegisterLoaded state) {
-    // Use toList() to create a new list instance for better performance
     final reversedCarNumbers = List<String>.from(state.carNumbers.reversed);
 
     if (_currentIndex == 0) {
@@ -111,7 +108,6 @@ class _HomeViewState extends State<HomeView> {
         child: CarNumberForm(state: state),
       );
     } else {
-      // الصفحة الثانية -> عرض الأرقام
       return SingleChildScrollView(
         physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.all(12),
@@ -129,7 +125,7 @@ class _HomeViewState extends State<HomeView> {
     }
   }
 
-  /// Bottom Navigation - النصوص محذوفة
+  /// Bottom Navigation
   Widget _buildBottomNav() {
     return BottomNavigationBar(
       backgroundColor: AppColors.backgroundSecondary,

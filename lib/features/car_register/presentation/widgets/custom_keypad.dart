@@ -1,5 +1,4 @@
-// ignore_for_file: deprecated_member_use
-
+// custom_keypad.dart
 import 'package:car_register_app/core/resources/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -45,7 +44,7 @@ class CustomKeypad extends StatelessWidget {
         crossAxisCount: 3,
         mainAxisSpacing: keySpacing!,
         crossAxisSpacing: keySpacing!,
-        childAspectRatio: 1.1, // أزرار أوسع قليلاً
+        childAspectRatio: 1.1,
       ),
       itemBuilder: (context, index) {
         final key = _keys[index];
@@ -59,10 +58,6 @@ class CustomKeypad extends StatelessWidget {
   }
 }
 
-// ==========================================
-// Keypad Key Model
-// ==========================================
-
 class KeypadKey {
   final String label;
   final KeypadAction action;
@@ -70,10 +65,6 @@ class KeypadKey {
 
   const KeypadKey({required this.label, required this.action, this.icon});
 }
-
-// ==========================================
-// Keypad Button Widget
-// ==========================================
 
 class KeypadButton extends StatefulWidget {
   final KeypadKey keypadKey;
@@ -128,10 +119,7 @@ class _KeypadButtonState extends State<KeypadButton>
             onTapCancel: _handleTapCancel,
             onTap: widget.onTap,
             child: Container(
-              constraints: const BoxConstraints(
-                minWidth: 70,
-                minHeight: 70,
-              ), // أزرار أوسع
+              constraints: const BoxConstraints(minWidth: 70, minHeight: 70),
               decoration: _buildButtonDecoration(),
               child: Center(child: _buildButtonContent()),
             ),
@@ -177,7 +165,7 @@ class _KeypadButtonState extends State<KeypadButton>
     if (widget.keypadKey.icon != null) {
       return Icon(
         widget.keypadKey.icon,
-        size: 28, // أيقونات أكبر
+        size: 28,
         color: isSpecialAction ? Colors.red : AppColors.backgroundPrimary,
       );
     }
@@ -185,7 +173,7 @@ class _KeypadButtonState extends State<KeypadButton>
     return Text(
       widget.keypadKey.label,
       style: TextStyle(
-        fontSize: 28, // نص أكبر
+        fontSize: 28,
         fontWeight: FontWeight.bold,
         color: isSpecialAction ? Colors.red : AppColors.backgroundPrimary,
       ),

@@ -1,5 +1,4 @@
-// ignore_for_file: deprecated_member_use
-
+// car_number_card.dart
 import 'package:car_register_app/core/resources/theme/app_colors.dart';
 import 'package:car_register_app/core/widgets/animations/animate_do.dart';
 import 'package:car_register_app/core/widgets/common/text_app.dart';
@@ -38,7 +37,6 @@ class CarNumberCard extends StatelessWidget {
     );
   }
 
-  /// بناء الأيقونة الرئيسية
   Widget _buildLeadingIcon() {
     return CircleAvatar(
       radius: 28,
@@ -51,7 +49,6 @@ class CarNumberCard extends StatelessWidget {
     );
   }
 
-  /// بناء العنوان
   Widget _buildTitle() {
     return TextApp(
       text: number,
@@ -62,7 +59,6 @@ class CarNumberCard extends StatelessWidget {
     );
   }
 
-  /// بناء العنوان الفرعي
   Widget _buildSubtitle() {
     return TextApp(
       text: 'تاريخ التسجيل: ${DateTime.now().toString().substring(0, 10)}',
@@ -72,7 +68,6 @@ class CarNumberCard extends StatelessWidget {
     );
   }
 
-  /// بناء الجزء الخلفي (زر الحذف أو مؤشر التحميل)
   Widget _buildTrailing() {
     if (isDeleting) {
       return const SizedBox(

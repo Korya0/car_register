@@ -1,3 +1,4 @@
+// pin_verification_dialog.dart
 import 'package:car_register_app/core/resources/theme/app_colors.dart';
 import 'package:car_register_app/core/widgets/ui_tools/toast_message.dart';
 import 'package:flutter/material.dart';

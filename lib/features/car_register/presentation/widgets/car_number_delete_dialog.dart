@@ -1,3 +1,4 @@
+// delete_confirmation_dialog.dart
 import 'package:car_register_app/core/resources/theme/app_colors.dart';
 import 'package:car_register_app/core/widgets/animations/animate_do.dart';
 import 'package:car_register_app/core/widgets/common/custom_button.dart';
@@ -6,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class CarNumberDeleteDialog {
-  /// عرض حوار تأكيد الحذف
   static void show({
     required BuildContext context,
     required String number,
@@ -43,7 +43,6 @@ class _DeleteConfirmationDialog extends StatelessWidget {
     );
   }
 
-  /// بناء عنوان الحوار
   Widget _buildTitle() {
     return const TextApp(
       text: 'تأكيد الحذف',
@@ -53,7 +52,6 @@ class _DeleteConfirmationDialog extends StatelessWidget {
     );
   }
 
-  /// بناء محتوى الحوار
   Widget _buildContent() {
     return TextApp(
       text: 'هل تريد حذف الرقم $number؟',
@@ -71,7 +69,6 @@ class _DeleteConfirmationDialog extends StatelessWidget {
     ];
   }
 
-  /// بناء زر الإلغاء
   Widget _buildCancelButton(BuildContext context) {
     return CustomButton(
       text: 'إلغاء',
@@ -82,7 +79,6 @@ class _DeleteConfirmationDialog extends StatelessWidget {
     );
   }
 
-  /// بناء زر التأكيد
   Widget _buildConfirmButton(BuildContext context) {
     return CustomButton(
       text: 'حذف',
