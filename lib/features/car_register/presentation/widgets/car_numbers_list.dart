@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:car_register_app/features/car_register/presentation/widgets/car_number_card_widget.dart';
 import 'package:car_register_app/features/car_register/presentation/widgets/pin_verification_dialog.dart';
 import 'package:flutter/material.dart';
@@ -126,19 +128,21 @@ class _CarNumbersListState extends State<CarNumbersList>
 
   void _toggleSelect(String number) {
     setState(() {
-      if (_selected.contains(number))
+      if (_selected.contains(number)) {
         _selected.remove(number);
-      else
+      } else {
         _selected.add(number);
+      }
     });
   }
 
   void _toggleSelectAll() {
     setState(() {
-      if (_selected.length == widget.numbers.length)
+      if (_selected.length == widget.numbers.length) {
         _selected.clear();
-      else
+      } else {
         _selected.addAll(widget.numbers);
+      }
     });
   }
 
