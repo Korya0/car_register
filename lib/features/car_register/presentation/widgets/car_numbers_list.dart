@@ -1,4 +1,6 @@
 // car_numbers_list.dart
+import 'package:car_register_app/core/resources/theme/app_colors.dart';
+import 'package:car_register_app/core/widgets/common/text_app.dart';
 import 'package:car_register_app/features/car_register/presentation/widgets/car_number_card_widget.dart';
 import 'package:car_register_app/features/car_register/presentation/widgets/pin_verification_dialog.dart';
 import 'package:flutter/material.dart';
@@ -71,15 +73,14 @@ class _CarNumbersListState extends State<CarNumbersList>
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: Colors.blue.withOpacity(0.1),
+        color: AppColors.backgroundSecondary,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.blue.withOpacity(0.3)),
       ),
       child: Row(
         children: [
           CircleAvatar(
             radius: 12,
-            backgroundColor: Colors.blue,
+            backgroundColor: AppColors.primary,
             child: Text(
               '${_selected.length}',
               style: const TextStyle(
@@ -90,13 +91,7 @@ class _CarNumbersListState extends State<CarNumbersList>
             ),
           ),
           const SizedBox(width: 8),
-          Text(
-            'محدد',
-            style: TextStyle(
-              color: Colors.blue.shade700,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
+          TextApp(text: 'محدد'),
           const Spacer(),
           TextButton.icon(
             onPressed: _toggleSelectAll,
@@ -105,20 +100,24 @@ class _CarNumbersListState extends State<CarNumbersList>
                   ? Icons.deselect
                   : Icons.select_all,
               size: 18,
-              color: Colors.blue.shade700,
+              color: AppColors.primary,
             ),
-            label: Text(
-              _selected.length == widget.numbers.length
+            label: TextApp(
+              text: _selected.length == widget.numbers.length
                   ? 'إلغاء الكل'
                   : 'تحديد الكل',
-              style: TextStyle(color: Colors.blue.shade700),
+              type: TextAppType.bodyMedium,
+              fontSize: 14,
             ),
           ),
           const SizedBox(width: 8),
           TextButton.icon(
             onPressed: _selected.isEmpty ? null : _confirmDeleteSelected,
             icon: const Icon(Icons.delete_forever, color: Colors.red, size: 18),
-            label: const Text('حذف', style: TextStyle(color: Colors.red)),
+            label: const TextApp(
+              text: 'حذف',
+              style: TextStyle(color: Colors.red),
+            ),
           ),
         ],
       ),
@@ -127,19 +126,21 @@ class _CarNumbersListState extends State<CarNumbersList>
 
   void _toggleSelect(String number) {
     setState(() {
-      if (_selected.contains(number))
+      if (_selected.contains(number)) {
         _selected.remove(number);
-      else
+      } else {
         _selected.add(number);
+      }
     });
   }
 
   void _toggleSelectAll() {
     setState(() {
-      if (_selected.length == widget.numbers.length)
+      if (_selected.length == widget.numbers.length) {
         _selected.clear();
-      else
+      } else {
         _selected.addAll(widget.numbers);
+      }
     });
   }
 
@@ -200,21 +201,21 @@ class _CarNumbersListState extends State<CarNumbersList>
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: Row(
-          children: const [
-            Icon(Icons.warning, color: Colors.orange),
-            SizedBox(width: 8),
-            Text('تأكيد الحذف'),
-          ],
+        title: TextApp(
+          text: 'تأكيد الحذف',
+          color: AppColors.textAndIconPrimary,
         ),
-        content: Text(
-          'هل تريد حذف ${numbers.length} عنصر محدد؟',
-          style: const TextStyle(fontSize: 16),
+        content: TextApp(
+          text: 'هل تريد حذف  العناصر محدد؟',
+          color: AppColors.textAndIconPrimary,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('إلغاء'),
+            child: const TextApp(
+              text: 'إلغاء',
+              color: AppColors.textAndIconPrimary,
+            ),
           ),
           ElevatedButton(
             onPressed: () => Navigator.of(context).pop(true),
