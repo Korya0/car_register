@@ -16,7 +16,6 @@ Future<void> setupInjector() async {
 }
 
 Future<void> _initExternalServices() async {
-  await SharedPref.initialize();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 }
 

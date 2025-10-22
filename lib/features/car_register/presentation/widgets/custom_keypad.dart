@@ -1,4 +1,6 @@
 // custom_keypad.dart
+// ignore_for_file: deprecated_member_use
+
 import 'package:car_register_app/core/resources/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -31,7 +33,12 @@ class CustomKeypad extends StatelessWidget {
     KeypadKey(label: '9', action: KeypadAction.digit),
     KeypadKey(label: 'C', action: KeypadAction.clear, icon: Icons.clear_all),
     KeypadKey(label: '0', action: KeypadAction.digit),
-    KeypadKey(label: '⌫', action: KeypadAction.delete, icon: Icons.backspace),
+    KeypadKey(
+      label: '⌫',
+      action: KeypadAction.delete,
+
+      icon: Icons.backspace_outlined,
+    ),
   ];
 
   @override
@@ -147,35 +154,16 @@ class _KeypadButtonState extends State<KeypadButton>
   }
 
   Color _getButtonColor() {
-    if (widget.keypadKey.action == KeypadAction.delete ||
-        widget.keypadKey.action == KeypadAction.clear) {
-      return _isPressed
-          ? Colors.red.withOpacity(0.8)
-          : Colors.red.withOpacity(0.1);
-    }
-
     return _isPressed ? AppColors.primary.withOpacity(0.8) : AppColors.primary;
   }
 
   Widget _buildButtonContent() {
-    final isSpecialAction =
-        widget.keypadKey.action == KeypadAction.delete ||
-        widget.keypadKey.action == KeypadAction.clear;
-
-    if (widget.keypadKey.icon != null) {
-      return Icon(
-        widget.keypadKey.icon,
-        size: 28,
-        color: isSpecialAction ? Colors.red : AppColors.backgroundPrimary,
-      );
-    }
-
     return Text(
       widget.keypadKey.label,
       style: TextStyle(
         fontSize: 28,
         fontWeight: FontWeight.bold,
-        color: isSpecialAction ? Colors.red : AppColors.backgroundPrimary,
+        color: AppColors.backgroundPrimary,
       ),
     );
   }
