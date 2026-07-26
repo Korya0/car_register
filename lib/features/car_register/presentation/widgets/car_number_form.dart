@@ -1,5 +1,5 @@
 // car_number_form.dart
-import 'package:car_register_app/core/resources/theme/app_colors.dart';
+import 'package:car_register_app/core/theme/app_colors.dart';
 import 'package:car_register_app/core/widgets/animations/animate_do.dart';
 import 'package:car_register_app/core/widgets/ui_tools/toast_message.dart';
 import 'package:car_register_app/features/car_register/presentation/widgets/car_number_text_field.dart';

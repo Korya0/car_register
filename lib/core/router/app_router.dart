@@ -1,6 +1,6 @@
 // app_router.dart
-import 'package:car_register_app/core/resources/router/app_routes.dart';
-import 'package:car_register_app/core/resources/router/app_transitions.dart';
+import 'package:car_register_app/core/router/app_routes.dart';
+import 'package:car_register_app/core/router/app_transitions.dart';
 import 'package:car_register_app/core/utils/di/injuction.dart';
 import 'package:car_register_app/features/car_register/presentation/cubit/car_register_cubit.dart';
 import 'package:car_register_app/features/car_register/presentation/views/home_view.dart';

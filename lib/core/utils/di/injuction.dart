@@ -1,6 +1,5 @@
 // injection.dart
 import 'package:car_register_app/core/services/network/connectivity_service.dart';
-import 'package:car_register_app/core/services/shared_pref/shared_pref.dart';
 import 'package:car_register_app/features/car_register/data/google_sheets_service.dart';
 import 'package:car_register_app/features/car_register/presentation/cubit/car_register_cubit.dart';
 import 'package:car_register_app/firebase_options.dart';

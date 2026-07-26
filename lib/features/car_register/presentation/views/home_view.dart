@@ -1,6 +1,6 @@
 // ignore_for_file: deprecated_member_use
 
-import 'package:car_register_app/core/resources/theme/app_colors.dart';
+import 'package:car_register_app/core/theme/app_colors.dart';
 import 'package:car_register_app/core/widgets/animations/animate_do.dart';
 import 'package:car_register_app/core/widgets/common/text_app.dart';
 import 'package:car_register_app/core/widgets/ui_tools/loading_overlay.dart';

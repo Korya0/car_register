@@ -1,4 +1,4 @@
-import 'package:car_register_app/core/resources/theme/app_colors.dart';
+import 'package:car_register_app/core/theme/app_colors.dart';
 import 'package:car_register_app/core/widgets/common/text_app.dart';
 import 'package:car_register_app/core/widgets/ui_tools/loading_overlay.dart';
 import 'package:flutter/material.dart';

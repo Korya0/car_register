@@ -1,5 +1,5 @@
 // car_number_card.dart
-import 'package:car_register_app/core/resources/theme/app_colors.dart';
+import 'package:car_register_app/core/theme/app_colors.dart';
 import 'package:car_register_app/core/widgets/animations/animate_do.dart';
 import 'package:car_register_app/core/widgets/common/text_app.dart';
 import 'package:flutter/material.dart';
@@ -40,7 +40,7 @@ class CarNumberCard extends StatelessWidget {
   Widget _buildLeadingIcon() {
     return CircleAvatar(
       radius: 28,
-      backgroundColor: AppColors.primary.withOpacity(0.15),
+      backgroundColor: AppColors.primary.withValues(alpha: 0.15),
       child: const Icon(
         Icons.directions_car,
         color: AppColors.primary,

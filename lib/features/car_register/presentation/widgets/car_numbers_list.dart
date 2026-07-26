@@ -1,5 +1,5 @@
 // car_numbers_list.dart
-import 'package:car_register_app/core/resources/theme/app_colors.dart';
+import 'package:car_register_app/core/theme/app_colors.dart';
 import 'package:car_register_app/core/widgets/common/text_app.dart';
 import 'package:car_register_app/features/car_register/presentation/widgets/car_number_card_widget.dart';
 import 'package:car_register_app/features/car_register/presentation/widgets/pin_verification_dialog.dart';

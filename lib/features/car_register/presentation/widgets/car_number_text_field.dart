@@ -1,5 +1,5 @@
 // car_number_text_field.dart
-import 'package:car_register_app/core/resources/theme/app_colors.dart';
+import 'package:car_register_app/core/theme/app_colors.dart';
 import 'package:car_register_app/core/utils/validators.dart';
 import 'package:car_register_app/core/widgets/common/custom_text_form_field.dart';
 import 'package:flutter/material.dart';
