@@ -1,239 +1,133 @@
-## car_register_app
-
-تطبيق Flutter بسيط لتسجيل أرقام لوحات السيارات وحفظها في Google Sheets مع عرض، إضافة وحذف، ودعم عربي كامل (RTL).
-
-### المزايا
-
-- إضافة رقم لوحة عبر لوحة أرقام مخصصة داخل التطبيق.
-- التحقق من صحة الإدخال (أرقام فقط، حتى 8 خانات) ومنع التكرار.
-- مزامنة مع Google Sheets مع كاش داخلي لتسريع القراءة.
-- حذف رقم مع تأكيد.
-- تتبع لحالة الاتصال بالشبكة.
-- تحديد متعدد للأرقام وحذفها دفعة واحدة (ضغط مطوّل على العنصر لبدء التحديد، ثم "حذف المحدد").
-- حذف جميع الأرقام دفعة واحدة عبر ضغط مطوّل على زر "حفظ اللوحة" مع تأكيد.
-
-### المتطلبات
-
-- Flutter (قناة مستقرة متوافقة مع Dart المذكور في `pubspec.yaml`).
-- حساب خدمة Service Account من Google وملف credentials بصيغة JSON للوصول إلى Google Sheets API.
-
-### الإعداد السريع
-
-1. تفعيل Google Sheets API وإنشاء Service Account، ثم تنزيل ملف JSON.
-2. ضع ملف الاعتمادات في المسار التالي (أو حدّثه كما تريد):
-   - `assets/carnumbersapp-469914-3fcef272fb5e.json`
-   - تأكد من إضافة المسار في `pubspec.yaml` ضمن `flutter > assets` (موجود بالفعل).
-3. أنشئ ملف Google Sheet:
-   - استخدم `spreadsheetId` الظاهر في `lib/core/config/app_config.dart` (قابل للتعديل).
-   - اسم الورقة يجب أن يطابق `sheetName` (الافتراضي: `Sheet1`).
-   - ضع عنوان العمود الأول في الصف 1 باسم `num` (قيمة `columnName`).
-4. تحقق من القيم في `lib/core/config/app_config.dart`:
-   - `spreadsheetId`
-   - `sheetName`
-   - `columnName`
-5. تشغيل المشروع:
-
-```bash
-flutter pub get
-flutter run
-```
-
-### الاستخدام
-
-- الصفحة الأولى: إدخال رقم اللوحة عبر الحقول ولوحة الأرقام ثم الضغط على "حفظ اللوحة".
-- الصفحة الثانية: عرض جميع اللوحات المسجلة مع إمكانية الحذف.
-
-### بنية مهمة في المشروع
-
-- `lib/features/car_register/data/google_sheets_service.dart`: التكامل مع Google Sheets (قراءة/إضافة/حذف + كاش).
-- `lib/features/car_register/presentation/cubit/car_register_cubit.dart`: إدارة الحالة (Bloc/Cubit).
-- `lib/features/car_register/presentation/views/home_view.dart`: هيكل الشاشات والتنقل السفلي.
-- `lib/features/car_register/presentation/widgets/*`: الودجتس (النموذج، القائمة، الحذف...).
-- `lib/core/config/app_config.dart`: إعدادات Google Sheets والمسارات.
-- `lib/core/services/network/connectivity_service.dart`: متابعة الاتصال.
-
-### ملاحظات ومشكلات محتملة
-
-- ملف الاعتمادات غير موجود في المجلد `assets/` ضمن المستودع الحالي. بدون هذا الملف سيحدث فشل في `AppConfig.getCredentials()` وتشغيل Sheets. أضفه أو حدّث المسار.
-- تم تضمين `spreadsheetId` واسم ملف الاعتمادات في الكود. تجنب رفع اعتمادات حساسة للمستودع العام.
-- يتم الاعتماد على `connectivity_plus` فقط لمعرفة حالة الاتصال، وقد لا يضمن الوصول الفعلي للإنترنت أو لخوادم Google (قد تحتاج فحص reachability إن لزم).
-- بعد إصدار حالة خطأ، يتم تحميل البيانات فورًا مرة أخرى، ويتم عرض رسالة الخطأ عبر `listener` (توست/سنackbar) وليس شاشة خطأ دائمة؛ هذا سلوك مقصود.
-- حزمة Firebase موجودة لكن لا يوجد تهيئة `Firebase.initializeApp` في `main.dart`؛ إذا لم تكن مطلوبة يمكنك إبقاءها، وإلا فعّلها قبل الاستخدام.
-- تأكد أن ورقة Google فيها رأس عمود في الصف الأول (`num`) وإلا قد تتصرف الخدمة بشكل غير متوقع عند القراءة.
-
-### نصائح نشر سريعة
-
-- استخدم مفاتيح وإعدادات إنتاجية لملف الاعتمادات ولا تضعه علنًا.
-- حدّث `spreadsheetId` إلى ورقة خاصة بالإنتاج.
-
-### ترخيص
-
-مشروع داخلي/تعليمي. حدّث هذا القسم بما يناسبك.
-
-# 🚗 Car Register App - تطبيق تسجيل السيارات
-
-تطبيق Flutter متكامل لتسجيل أرقام السيارات أثناء حملات توزيع الكتيبات، لضمان حصول كل سيارة على كتيب واحد فقط.
-
-## ✨ المميزات
-
-- **شاشة البداية**: عرض الشعار مع خلفية زرقاء فاتحة لمدة ثانيتين
-- **الشاشة الرئيسية**: واجهة تسجيل السيارات مع عداد وملف عرض
-- **تكامل Google Sheets**: قاعدة بيانات سحابية للبيانات
-- **دعم اللغة العربية**: تخطيط من اليمين إلى اليسار (RTL)
-- **التحقق من المدخلات**: أرقام فقط مع منع التكرار
-- **إدارة الأخطاء**: معالجة شاملة للأخطاء وحالات عدم الاتصال
-- **واجهة مستخدم حديثة**: تصميم بسيط وسهل الاستخدام
-
-## 🏗️ هيكل المشروع
-
-```
-lib/
-├── core/
-│   ├── config/          # إعدادات التطبيق وبيانات Google Sheets
-│   ├── router/          # إعدادات التنقل
-│   └── utils/           # خدمات مساعدة
-├── features/
-│   └── car_register/
-│       ├── data/        # خدمات البيانات
-│       └── presentation/
-│           ├── cubit/   # إدارة الحالة
-│           └── widgets/ # عناصر واجهة المستخدم
-└── main.dart            # نقطة بداية التطبيق
-```
-
-## 🚀 التثبيت والتشغيل
-
-### 1. تثبيت التبعيات
-
-```bash
-flutter pub get
-```
-
-### 2. تشغيل التطبيق
-
-```bash
-flutter run
-```
-
-### 3. بناء ملف APK
-
-```bash
-flutter build apk --release
-```
-
-## ⚙️ إعداد Google Sheets
-
-### الخطوة 1: إنشاء مشروع Google Cloud
-
-1. اذهب إلى [Google Cloud Console](https://console.cloud.google.com/)
-2. أنشئ مشروعاً جديداً أو اختر مشروعاً موجوداً
-3. فعّل Google Sheets API
-
-### الخطوة 2: إنشاء حساب خدمة
-
-1. اذهب إلى "APIs & Services" > "Credentials"
-2. اضغط "Create Credentials" > "Service Account"
-3. احفظ ملف JSON
-
-### الخطوة 3: إنشاء جدول بيانات
-
-1. أنشئ جدول بيانات جديد
-2. شاركه مع بريد حساب الخدمة (Editor permissions)
-3. انسخ معرف الجدول من الرابط
-
-### الخطوة 4: تحديث الإعدادات
-
-1. انسخ ملف JSON إلى مجلد `assets/`
-2. عدّل `lib/core/config/app_config.dart`:
-   - `spreadsheetId`: معرف الجدول
-   - `credentialsPath`: مسار ملف JSON
-
-## 📱 استخدام التطبيق
-
-1. **بدء التشغيل**: عرض شاشة البداية لمدة ثانيتين
-2. **التسجيل**: أدخل رقم السيارة (أرقام فقط) واضغط حفظ
-3. **التحقق**: التطبيق يتحقق من عدم وجود الرقم مسبقاً
-4. **الإدارة**: عرض جميع الأرقام مع إمكانية الحذف
-5. **العداد**: تحديث تلقائي لعدد السيارات المسجلة
-
-## 🛡️ معالجة الأخطاء
-
-- **أرقام مكررة**: "هذه السيارة مسجلة بالفعل"
-- **مدخلات غير صحيحة**: "يُسمح بالأرقام فقط"
-- **عدم وجود إنترنت**: "مطلوب اتصال بالإنترنت"
-- **أخطاء API**: "حدث خطأ ما، يرجى المحاولة مرة أخرى"
-
-## 🎨 التصميم
-
-- **الألوان**: أزرق أساسي مع خلفية بيضاء
-- **الخط**: دعم كامل للغة العربية
-- **التخطيط**: من اليمين إلى اليسار (RTL)
-- **الرسوم المتحركة**: انتقالات سلسة وتأثيرات بصرية
-
-## 🏛️ الهندسة المعمارية
-
-- **Clean Architecture**: تنظيم حسب الميزات والطبقات
-- **State Management**: نمط Cubit لإدارة الحالة
-- **Dependency Injection**: حقن الخدمات عبر المُنشئ
-- **Separation of Concerns**: فصل واجهة المستخدم والمنطق والبيانات
-
-## 📚 التبعيات
-
-- `flutter_bloc`: إدارة الحالة
-- `go_router`: التنقل
-- `gsheets`: تكامل Google Sheets
-- `connectivity_plus`: مراقبة الاتصال
-- `equatable`: المساواة في القيم
-
-## 🔧 استكشاف الأخطاء
-
-### مشاكل شائعة:
-
-1. **تبعيات غير موجودة**: شغل `flutter pub get`
-2. **Google Sheets API errors**: تحقق من الاعتماديات وتفعيل API
-3. **Permission denied**: تأكد من صلاحيات المحرر لحساب الخدمة
-4. **Build errors**: تحقق من توافق إصدار Flutter
-
-### اختبار:
-
-1. شغل `flutter doctor` للتحقق من تثبيت Flutter
-2. اختبر بـ `flutter run` على جهاز/محاكي
-3. تحقق من اتصال Google Sheets بإضافة إدخال تجريبي
-
-## 📋 متطلبات النظام
-
-- Flutter SDK 3.8.1 أو أحدث
-- Dart SDK 3.0.0 أو أحدث
-- Android Studio / VS Code
-- جهاز Android أو محاكي
-
-## 🚀 النشر
-
-### بناء APK للإنتاج:
-
-```bash
-flutter build apk --release
-```
-
-### موقع الملف:
-
-```
-build/app/outputs/flutter-apk/app-release.apk
-```
-
-## 📞 الدعم
-
-- **وثائق Flutter**: https://flutter.dev/docs
-- **Google Sheets API**: https://developers.google.com/sheets/api
-- **Flutter Bloc**: https://bloclibrary.dev/
-
-## 📄 الترخيص
-
-هذا المشروع مخصص للاستخدام التعليمي والتجاري.
+<div align="center">
+
+<!-- Badges at Top -->
+<p>
+  <a href="https://github.com/Korya0/car_register/graphs/contributors">
+    <img src="https://img.shields.io/github/contributors/Korya0/car_register" alt="contributors" />
+  </a>
+  <a href="https://github.com/Korya0/car_register/commits/main">
+    <img src="https://img.shields.io/github/last-commit/Korya0/car_register" alt="last update" />
+  </a>
+  <a href="https://github.com/Korya0/car_register/stargazers">
+    <img src="https://img.shields.io/github/stars/Korya0/car_register" alt="stars" />
+  </a>
+  <a href="https://github.com/Korya0/car_register/blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/Korya0/car_register" alt="license" />
+  </a>
+</p>
+
+<!-- Typing Logo -->
+<img src="https://readme-typing-svg.herokuapp.com/?font=Inter&weight=800&size=50&center=true&vCenter=true&width=600&height=100&duration=4000&lines=Car+Register+App"/>
+
+<!-- Links Section -->
+<p>
+  <a href="https://mostaql.com/u/Korya/reviews/9091624">
+    <img src="https://img.shields.io/badge/⭐_Client_Review-F5A623?style=for-the-badge" alt="Client Review"/>
+  </a>
+  <a href="https://www.linkedin.com/in/mahmoudk25/">
+    <img src="https://img.shields.io/badge/💬_LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="LinkedIn"/>
+  </a>
+</p>
+
+</div>
 
 ---
 
-**تم تطوير هذا التطبيق باستخدام Flutter مع أفضل الممارسات والهندسة المعمارية الحديثة** 🚀
-#   c a r _ r e g i s t e r 
- 
- 
+## 🚀 Key Features
+
+<details>
+<summary><b>📋 Registration & Validation</b></summary>
+<br>
+
+- **Custom Number Pad**: Enter plate numbers using an in-app keypad — no system keyboard needed.
+- **Input Validation**: Numbers only, up to 8 digits, with duplicate prevention.
+- **Instant Feedback**: Clear error messages for invalid or repeated entries.
+
+</details>
+
+<details>
+<summary><b>☁️ Google Sheets Integration</b></summary>
+<br>
+
+- **Cloud Database**: All plate numbers synced to Google Sheets in real time.
+- **Internal Cache**: Speeds up read operations to minimize API calls.
+- **Full CRUD**: Add, view, and delete records directly from the app.
+
+</details>
+
+<details>
+<summary><b>🗑️ Bulk Management</b></summary>
+<br>
+
+- **Multi-select Delete**: Long-press any item to enter selection mode, then delete multiple plates at once.
+- **Delete All**: Long-press the save button to delete all records at once, with a confirmation dialog.
+
+</details>
+
+<details>
+<summary><b>🌐 Network Awareness</b></summary>
+<br>
+
+- **Connectivity Tracking**: The app monitors network status and informs the user when offline.
+- **Error Handling**: Comprehensive handling for API errors and connectivity issues.
+
+</details>
+
+---
+
+## 🛠️ Tech Stack
+
+- **Framework**: `Flutter`
+- **Architecture**: `Clean Architecture`
+- **State Management**: `BLoC / Cubit`
+- **Database**: `Google Sheets API`
+- **Navigation**: `GoRouter`
+- **Language Support**: `Arabic (RTL)`
+
+---
+
+## 💻 Getting Started
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/Korya0/car_register.git
+   ```
+
+2. **Install dependencies**
+   ```bash
+   flutter pub get
+   ```
+
+3. **Add your credentials**
+   - Place your Google Service Account JSON file at `assets/credentials.json`
+   - Update `lib/core/config/app_config.dart` with your `spreadsheetId`
+
+4. **Run the project**
+   ```bash
+   flutter run
+   ```
+
+---
+
+## 📅 Roadmap
+
+- [x] Core registration & Google Sheets sync
+- [x] Multi-select & bulk delete
+- [x] Network connectivity tracking
+- [x] Internal cache for faster reads
+- [x] Comprehensive Project Documentation
+- [ ] Unit & widget testing
+
+---
+
+## 📄 License
+
+Distributed under the **MIT License**. See `LICENSE` for more information.
+
+---
+
+<div align="center">
+Made with ❤️ by Korya
+<br/>
+<b>© 2026 Car Register App</b>
+</div>
