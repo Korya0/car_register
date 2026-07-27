@@ -1,7 +1,7 @@
-// empty_state_widget.dart
-import 'package:car_register_app/core/theme/app_colors.dart';
-import 'package:car_register_app/core/widgets/animations/animate_do.dart';
-import 'package:car_register_app/core/widgets/common/text_app.dart';
+import 'package:car_register_app/core/constants/app_strings.dart';
+import 'package:car_register_app/core/style/font/app_text_styles.dart';
+import 'package:car_register_app/core/style/theme/app_colors.dart';
+import 'package:car_register_app/core/widgets/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -23,19 +23,14 @@ class EmptyStateWidget extends StatelessWidget {
               color: AppColors.primary,
             ),
             SizedBox(height: 20.h),
-            TextApp(
-              text: 'لا توجد لوحات مسجلة',
-              type: TextAppType.bodyLarge,
-              color: AppColors.textAndIconPrimary,
-              fontWeight: FontWeight.w600,
-              fontSize: 20,
+            Text(
+              AppStrings.noPlatesRegistered,
+              style: AppTextStyles.emptyTitle,
             ),
             SizedBox(height: 12.h),
-            TextApp(
-              text: 'ابدأ بإضافة رقم اللوحه ',
-              type: TextAppType.bodyMedium,
-              color: AppColors.textAndIconSecondary.withAlpha(100),
-              fontSize: 16,
+            Text(
+              AppStrings.startByAddingPlate,
+              style: AppTextStyles.emptySubtitle,
             ),
           ],
         ),

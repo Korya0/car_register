@@ -1,7 +1,5 @@
-// custom_keypad.dart
-// ignore_for_file: deprecated_member_use
-
-import 'package:car_register_app/core/theme/app_colors.dart';
+import 'package:car_register_app/core/style/font/app_text_styles.dart';
+import 'package:car_register_app/core/style/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -36,7 +34,6 @@ class CustomKeypad extends StatelessWidget {
     KeypadKey(
       label: '⌫',
       action: KeypadAction.delete,
-
       icon: Icons.backspace_outlined,
     ),
   ];
@@ -144,27 +141,23 @@ class _KeypadButtonState extends State<KeypadButton>
           ? []
           : [
               BoxShadow(
-                color: Colors.black.withOpacity(0.15),
+                color: Colors.black.withValues(alpha: 0.15),
                 blurRadius: 8,
                 offset: const Offset(0, 4),
               ),
             ],
-      border: Border.all(color: AppColors.primary.withOpacity(0.2), width: 1),
+      border: Border.all(color: AppColors.primary.withValues(alpha: 0.2), width: 1),
     );
   }
 
   Color _getButtonColor() {
-    return _isPressed ? AppColors.primary.withOpacity(0.8) : AppColors.primary;
+    return _isPressed ? AppColors.primary.withValues(alpha: 0.8) : AppColors.primary;
   }
 
   Widget _buildButtonContent() {
     return Text(
       widget.keypadKey.label,
-      style: TextStyle(
-        fontSize: 28,
-        fontWeight: FontWeight.bold,
-        color: AppColors.backgroundPrimary,
-      ),
+      style: AppTextStyles.keypadDigit,
     );
   }
 

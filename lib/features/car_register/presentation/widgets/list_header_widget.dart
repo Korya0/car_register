@@ -1,49 +1,42 @@
-// list_header_widget.dart
-import 'package:car_register_app/core/theme/app_colors.dart';
-import 'package:car_register_app/core/widgets/animations/animate_do.dart';
-import 'package:car_register_app/core/widgets/common/text_app.dart';
+import 'package:car_register_app/core/constants/app_strings.dart';
+import 'package:car_register_app/core/style/font/app_text_styles.dart';
+import 'package:car_register_app/core/style/theme/app_colors.dart';
+import 'package:car_register_app/core/widgets/animate_do.dart';
+import 'package:car_register_app/features/car_register/presentation/controllers/car_register_cubit.dart';
+import 'package:car_register_app/features/car_register/presentation/controllers/car_register_state.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ListHeaderWidget extends StatelessWidget {
-  final List<String> carNumbers;
-
-  const ListHeaderWidget({super.key, required this.carNumbers});
+  const ListHeaderWidget({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final count = context.select<CarRegisterCubit, int>((cubit) {
+      return switch (cubit.state) {
+        CarRegisterLoaded s => s.carNumbers.length,
+        CarRegisterFailure s => s.carNumbers.length,
+        _ => 0,
+      };
+    });
+
     return CustomFadeInLeft(
       duration: 700,
       child: Row(
         children: [
-          const Icon(
-            Icons.receipt_long_outlined,
-            color: AppColors.primary,
-            size: 28,
-          ),
+          const Icon(Icons.receipt_long_outlined, color: AppColors.primary, size: 28),
           SizedBox(width: 12.w),
-          TextApp(
-            text: 'اللوحات المسجلة',
-            type: TextAppType.bodyLarge,
-            color: AppColors.textAndIconPrimary,
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-          ),
-          if (carNumbers.isNotEmpty) ...[const Spacer(), _buildCounter()],
+          Text(AppStrings.registeredPlates, style: AppTextStyles.titleMedium),
+          if (count > 0) ...[
+            const Spacer(),
+            CircleAvatar(
+              backgroundColor: AppColors.textAndIconSecondary,
+              radius: 16,
+              child: Text('$count', style: AppTextStyles.counterNumber),
+            ),
+          ],
         ],
-      ),
-    );
-  }
-
-  Widget _buildCounter() {
-    return CircleAvatar(
-      backgroundColor: AppColors.textAndIconSecondary,
-      radius: 16,
-      child: TextApp(
-        text: '${carNumbers.length}',
-        type: TextAppType.bodySmall,
-        color: AppColors.textAndIconThritly,
-        fontWeight: FontWeight.bold,
       ),
     );
   }

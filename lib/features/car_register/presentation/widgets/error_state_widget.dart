@@ -1,18 +1,16 @@
-// error_state_widget.dart
-import 'package:car_register_app/core/theme/app_colors.dart';
-import 'package:car_register_app/core/widgets/animations/animate_do.dart';
-import 'package:car_register_app/core/widgets/common/custom_button.dart';
-import 'package:car_register_app/core/widgets/common/text_app.dart';
+import 'package:car_register_app/core/constants/app_strings.dart';
+import 'package:car_register_app/core/style/font/app_text_styles.dart';
+import 'package:car_register_app/core/style/theme/app_colors.dart';
+import 'package:car_register_app/core/widgets/animate_do.dart';
 import 'package:flutter/material.dart';
-import '../cubit/car_register_cubit.dart';
 
 class ErrorStateWidget extends StatelessWidget {
-  final CarRegisterError error;
+  final String message;
   final VoidCallback onRetry;
 
   const ErrorStateWidget({
     super.key,
-    required this.error,
+    required this.message,
     required this.onRetry,
   });
 
@@ -30,47 +28,38 @@ class ErrorStateWidget extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _buildErrorIcon(),
+                  const Icon(
+                    Icons.warning_amber_rounded,
+                    size: 80,
+                    color: AppColors.red,
+                  ),
                   const SizedBox(height: 24),
-                  _buildErrorMessage(),
+                  Text(
+                    message,
+                    textAlign: TextAlign.center,
+                    style: AppTextStyles.errorDescription,
+                  ),
                   const SizedBox(height: 32),
-                  _buildRetryButton(),
+                  GestureDetector(
+                    onTap: onRetry,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                      decoration: BoxDecoration(
+                        color: AppColors.primary,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        AppStrings.retry,
+                        style: AppTextStyles.buttonSecondary,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
           ),
         ),
       ),
-    );
-  }
-
-  Widget _buildErrorIcon() {
-    return const Icon(
-      Icons.warning_amber_rounded,
-      size: 80,
-      color: AppColors.red,
-    );
-  }
-
-  Widget _buildErrorMessage() {
-    return TextApp(
-      text: error.message,
-      type: TextAppType.bodyLarge,
-      color: AppColors.textAndIconPrimary,
-      textAlign: TextAlign.center,
-      fontWeight: FontWeight.w500,
-    );
-  }
-
-  Widget _buildRetryButton() {
-    return CustomButton(
-      text: '🔄 إعادة المحاولة',
-      backgroundColor: AppColors.primary,
-      textColor: AppColors.backgroundPrimary,
-      fontSize: 16,
-      fontWeight: FontWeight.bold,
-      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-      onTap: onRetry,
     );
   }
 }

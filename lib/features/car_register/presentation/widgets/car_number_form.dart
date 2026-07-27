@@ -1,20 +1,23 @@
-// car_number_form.dart
-import 'package:car_register_app/core/theme/app_colors.dart';
-import 'package:car_register_app/core/widgets/animations/animate_do.dart';
-import 'package:car_register_app/core/widgets/ui_tools/toast_message.dart';
+import 'package:car_register_app/core/constants/app_constants.dart';
+import 'package:car_register_app/core/constants/app_strings.dart';
+import 'package:car_register_app/core/style/theme/app_colors.dart';
+import 'package:car_register_app/core/widgets/animate_do.dart';
+import 'package:car_register_app/core/widgets/toast_message.dart';
+import 'package:car_register_app/features/car_register/presentation/controllers/car_register_cubit.dart';
+import 'package:car_register_app/features/car_register/presentation/controllers/car_register_state.dart';
 import 'package:car_register_app/features/car_register/presentation/widgets/car_number_text_field.dart';
 import 'package:car_register_app/features/car_register/presentation/widgets/car_submit_button.dart';
 import 'package:car_register_app/features/car_register/presentation/widgets/custom_keypad.dart';
 import 'package:car_register_app/features/car_register/presentation/widgets/pin_verification_dialog.dart';
+import 'package:car_register_app/features/car_register/data/models/car_number_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../cubit/car_register_cubit.dart';
 
 class CarNumberForm extends StatefulWidget {
-  final CarRegisterLoaded state;
+  final bool isAddingNumber;
 
-  const CarNumberForm({super.key, required this.state});
+  const CarNumberForm({super.key, required this.isAddingNumber});
 
   @override
   State<CarNumberForm> createState() => _CarNumberFormState();
@@ -23,7 +26,6 @@ class CarNumberForm extends StatefulWidget {
 class _CarNumberFormState extends State<CarNumberForm> {
   final TextEditingController _controller = TextEditingController();
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-  static const int _maxCarNumberLength = 8;
 
   @override
   void dispose() {
@@ -56,11 +58,9 @@ class _CarNumberFormState extends State<CarNumberForm> {
             CarNumberTextField(controller: _controller),
             SizedBox(height: 16.h),
             CarSubmitButton(
-              isLoading: widget.state.isAddingNumber,
-              onTap: widget.state.isAddingNumber ? null : _handleSubmit,
-              onLongPress: widget.state.isAddingNumber
-                  ? null
-                  : _handleClearAllWithPIN,
+              isLoading: widget.isAddingNumber,
+              onTap: widget.isAddingNumber ? null : _handleSubmit,
+              onLongPress: widget.isAddingNumber ? null : _handleClearAllWithPIN,
             ),
           ],
         ),
@@ -88,45 +88,39 @@ class _CarNumberFormState extends State<CarNumberForm> {
     switch (action) {
       case KeypadAction.digit:
         if (value != null) _addDigit(value);
-        break;
       case KeypadAction.delete:
         _deleteLastDigit();
-        break;
       case KeypadAction.submit:
         _handleSubmit();
-        break;
       case KeypadAction.clear:
         _clearAllDigits();
-        break;
     }
   }
 
   void _addDigit(String digit) {
-    if (_controller.text.length < _maxCarNumberLength) {
-      setState(() {
-        _controller.text += digit;
-      });
+    if (_controller.text.length < AppConstants.maxCarNumberLength) {
+      setState(() => _controller.text += digit);
     } else {
-      _showMaxLengthWarning();
+      ToastMessage.error(context, '${AppStrings.maxDigitsReached} ${AppConstants.maxCarNumberLength} ${AppStrings.maxDigitsSuffix}');
     }
   }
 
   void _deleteLastDigit() {
     if (_controller.text.isNotEmpty) {
-      setState(() {
-        _controller.text = _controller.text.substring(
-          0,
-          _controller.text.length - 1,
-        );
-      });
+      setState(() => _controller.text = _controller.text.substring(0, _controller.text.length - 1));
     }
   }
 
   void _handleSubmit() {
     if (!mounted || !_formKey.currentState!.validate()) return;
     final carNumber = _controller.text.trim();
-    if (_isCarNumberExists(carNumber)) {
-      ToastMessage.error(context, 'هذا الرقم موجود بالفعل');
+    final cubit = context.read<CarRegisterCubit>();
+    final currentNumbers = switch (cubit.state) {
+      CarRegisterLoaded s => s.carNumbers,
+      _ => const <CarNumberModel>[],
+    };
+    if (currentNumbers.any((model) => model.number == carNumber)) {
+      ToastMessage.error(context, AppStrings.plateNumberAlreadyExists);
       return;
     }
     _addCarNumber(carNumber);
@@ -138,21 +132,18 @@ class _CarNumberFormState extends State<CarNumberForm> {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Row(
+        title: const Row(
           children: [
             Icon(Icons.warning_amber, color: Colors.orange),
             SizedBox(width: 8),
-            Text('تأكيد مسح الكل'),
+            Text(AppStrings.confirmClearAll),
           ],
         ),
-        content: Text(
-          'هل تريد حذف جميع الأرقام المسجلة؟\n\nسيتم طلب الرقم السري للتأكيد.',
-          style: TextStyle(fontSize: 16),
-        ),
+        content: const Text(AppStrings.confirmClearAllContent),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: Text('إلغاء'),
+            child: const Text(AppStrings.cancel),
           ),
           ElevatedButton(
             onPressed: () => Navigator.of(context).pop(true),
@@ -160,7 +151,7 @@ class _CarNumberFormState extends State<CarNumberForm> {
               backgroundColor: Colors.orange,
               foregroundColor: Colors.white,
             ),
-            child: Text('متابعة'),
+            child: const Text(AppStrings.proceed),
           ),
         ],
       ),
@@ -170,23 +161,14 @@ class _CarNumberFormState extends State<CarNumberForm> {
       final pinVerified = await PinVerificationDialog.show(context);
       if (pinVerified && mounted) {
         context.read<CarRegisterCubit>().clearAll();
-        ToastMessage.success(context, 'تم حذف جميع الأرقام بنجاح');
+        ToastMessage.success(context, AppStrings.allDeletedSuccessfully);
       }
     }
-  }
-
-  bool _isCarNumberExists(String carNumber) {
-    return widget.state.carNumbers.contains(carNumber);
   }
 
   void _addCarNumber(String carNumber) {
     if (!mounted) return;
     context.read<CarRegisterCubit>().addCarNumber(carNumber);
-    _clearForm();
-  }
-
-  void _clearForm() {
-    if (!mounted) return;
     setState(() => _controller.clear());
     FocusScope.of(context).unfocus();
   }
@@ -194,10 +176,5 @@ class _CarNumberFormState extends State<CarNumberForm> {
   void _clearAllDigits() {
     if (!mounted) return;
     setState(() => _controller.clear());
-  }
-
-  void _showMaxLengthWarning() {
-    if (!mounted) return;
-    ToastMessage.error(context, 'الحد الأقصى $_maxCarNumberLength أرقام');
   }
 }

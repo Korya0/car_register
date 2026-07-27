@@ -1,24 +1,24 @@
-// car_numbers_list.dart
-import 'package:car_register_app/core/theme/app_colors.dart';
-import 'package:car_register_app/core/widgets/common/text_app.dart';
+import 'package:car_register_app/core/constants/app_strings.dart';
+import 'package:car_register_app/core/utils/app_logger.dart';
+import 'package:car_register_app/core/style/font/app_text_styles.dart';
+import 'package:car_register_app/core/style/theme/app_colors.dart';
+import 'package:car_register_app/features/car_register/presentation/controllers/car_register_cubit.dart';
 import 'package:car_register_app/features/car_register/presentation/widgets/car_number_card_widget.dart';
 import 'package:car_register_app/features/car_register/presentation/widgets/pin_verification_dialog.dart';
+import 'package:car_register_app/features/car_register/data/models/car_number_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../cubit/car_register_cubit.dart';
 
 class CarNumbersList extends StatefulWidget {
-  final List<String> numbers;
-  final CarRegisterLoaded state;
+  final List<CarNumberModel> numbers;
 
-  const CarNumbersList({super.key, required this.numbers, required this.state});
+  const CarNumbersList({super.key, required this.numbers});
 
   @override
   State<CarNumbersList> createState() => _CarNumbersListState();
 }
 
-class _CarNumbersListState extends State<CarNumbersList>
-    with TickerProviderStateMixin {
+class _CarNumbersListState extends State<CarNumbersList> {
   final Set<String> _selected = <String>{};
   String? _deletingNumber;
 
@@ -38,7 +38,8 @@ class _CarNumbersListState extends State<CarNumbersList>
   }
 
   Widget _buildCarNumberItem(BuildContext context, int index) {
-    final number = widget.numbers[index];
+    final model = widget.numbers[index];
+    final number = model.number;
     return GestureDetector(
       onLongPress: () => _toggleSelect(number),
       onTap: () {
@@ -48,7 +49,7 @@ class _CarNumbersListState extends State<CarNumbersList>
         key: ValueKey(number),
         children: [
           CarNumberCard(
-            number: number,
+            model: model,
             isDeleting: _deletingNumber == number,
             onDelete: () => _deleteCarNumber(number),
             index: index,
@@ -83,15 +84,11 @@ class _CarNumbersListState extends State<CarNumbersList>
             backgroundColor: AppColors.primary,
             child: Text(
               '${_selected.length}',
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-              ),
+              style: AppTextStyles.selectedCount,
             ),
           ),
           const SizedBox(width: 8),
-          TextApp(text: 'محدد'),
+          const Text(AppStrings.selected),
           const Spacer(),
           TextButton.icon(
             onPressed: _toggleSelectAll,
@@ -102,22 +99,16 @@ class _CarNumbersListState extends State<CarNumbersList>
               size: 18,
               color: AppColors.primary,
             ),
-            label: TextApp(
-              text: _selected.length == widget.numbers.length
-                  ? 'إلغاء الكل'
-                  : 'تحديد الكل',
-              type: TextAppType.bodyMedium,
-              fontSize: 14,
+            label: Text(
+              _selected.length == widget.numbers.length ? AppStrings.deselectAll : AppStrings.selectAll,
+              style: AppTextStyles.bodySmall,
             ),
           ),
           const SizedBox(width: 8),
           TextButton.icon(
             onPressed: _selected.isEmpty ? null : _confirmDeleteSelected,
             icon: const Icon(Icons.delete_forever, color: Colors.red, size: 18),
-            label: const TextApp(
-              text: 'حذف',
-              style: TextStyle(color: Colors.red),
-            ),
+            label: Text(AppStrings.delete, style: AppTextStyles.errorMessage),
           ),
         ],
       ),
@@ -139,7 +130,7 @@ class _CarNumbersListState extends State<CarNumbersList>
       if (_selected.length == widget.numbers.length) {
         _selected.clear();
       } else {
-        _selected.addAll(widget.numbers);
+        _selected.addAll(widget.numbers.map((e) => e.number));
       }
     });
   }
@@ -149,21 +140,18 @@ class _CarNumbersListState extends State<CarNumbersList>
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Row(
-          children: const [
+        title: const Row(
+          children: [
             Icon(Icons.warning, color: Colors.orange),
             SizedBox(width: 8),
-            Text('تأكيد الحذف'),
+            Text(AppStrings.confirmDelete),
           ],
         ),
-        content: Text(
-          'هل تريد حذف الرقم $number؟',
-          style: const TextStyle(fontSize: 16),
-        ),
+        content: Text('${AppStrings.confirmDeleteSinglePrefix}$number${AppStrings.confirmDeleteSingleSuffix}'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('إلغاء'),
+            child: const Text(AppStrings.cancel),
           ),
           ElevatedButton(
             onPressed: () {
@@ -174,7 +162,7 @@ class _CarNumbersListState extends State<CarNumbersList>
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
             ),
-            child: const Text('حذف'),
+            child: const Text(AppStrings.delete),
           ),
         ],
       ),
@@ -182,40 +170,29 @@ class _CarNumbersListState extends State<CarNumbersList>
   }
 
   void _confirmDelete(String number) {
+    AppLogger.debug('UI: confirm delete number $number');
     setState(() => _deletingNumber = number);
-    context
-        .read<CarRegisterCubit>()
-        .deleteCarNumber(number)
-        .then((_) {
-          if (mounted) setState(() => _deletingNumber = null);
-        })
-        .catchError((error) {
-          if (mounted) setState(() => _deletingNumber = null);
-          debugPrint('Error deleting item: $error');
-        });
+    context.read<CarRegisterCubit>().deleteCarNumber(number).then((_) {
+      if (mounted) setState(() => _deletingNumber = null);
+    }).catchError((error) {
+      AppLogger.warn('UI: unexpected error during delete', error: error);
+      if (mounted) setState(() => _deletingNumber = null);
+    });
   }
 
   void _confirmDeleteSelected() async {
     if (_selected.isEmpty) return;
     final numbers = List<String>.from(_selected);
+    AppLogger.debug('UI: confirm delete ${numbers.length} selected numbers');
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: TextApp(
-          text: 'تأكيد الحذف',
-          color: AppColors.textAndIconPrimary,
-        ),
-        content: TextApp(
-          text: 'هل تريد حذف  العناصر محدد؟',
-          color: AppColors.textAndIconPrimary,
-        ),
+        title: const Text(AppStrings.confirmDelete),
+        content: const Text(AppStrings.confirmDeleteSelected),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const TextApp(
-              text: 'إلغاء',
-              color: AppColors.textAndIconPrimary,
-            ),
+            child: const Text(AppStrings.cancel),
           ),
           ElevatedButton(
             onPressed: () => Navigator.of(context).pop(true),
@@ -223,7 +200,7 @@ class _CarNumbersListState extends State<CarNumbersList>
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
             ),
-            child: const Text('متابعة'),
+            child: const Text(AppStrings.proceed),
           ),
         ],
       ),
@@ -232,6 +209,7 @@ class _CarNumbersListState extends State<CarNumbersList>
     if (confirmed == true && mounted) {
       final pinVerified = await PinVerificationDialog.show(context);
       if (pinVerified && mounted) {
+        AppLogger.debug('UI: executing batch delete for ${numbers.length} numbers');
         context.read<CarRegisterCubit>().deleteMultiple(numbers).then((_) {
           if (mounted) setState(() => _selected.clear());
         });

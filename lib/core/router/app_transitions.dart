@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 class AppTransitions {
   AppTransitions._();
 
-  // Default transition duration
   static const Duration _duration = Duration(milliseconds: 300);
   static const Duration _reverseDuration = Duration(milliseconds: 250);
 

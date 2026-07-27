@@ -1,147 +1,76 @@
-// ignore_for_file: deprecated_member_use
-
-import 'package:car_register_app/core/theme/app_colors.dart';
-import 'package:car_register_app/core/widgets/animations/animate_do.dart';
-import 'package:car_register_app/core/widgets/common/text_app.dart';
-import 'package:car_register_app/core/widgets/ui_tools/loading_overlay.dart';
-import 'package:car_register_app/features/car_register/presentation/widgets/car_number_form.dart';
-import 'package:car_register_app/features/car_register/presentation/widgets/car_numbers_list.dart';
-import 'package:car_register_app/features/car_register/presentation/widgets/empty_state_widget.dart';
-import 'package:car_register_app/features/car_register/presentation/widgets/error_handelar.dart';
-import 'package:car_register_app/features/car_register/presentation/widgets/error_state_widget.dart';
-import 'package:car_register_app/features/car_register/presentation/widgets/list_header_widget.dart';
+import 'package:car_register_app/core/constants/app_strings.dart';
+import 'package:car_register_app/core/style/font/app_text_styles.dart';
+import 'package:car_register_app/core/utils/app_logger.dart';
+import 'package:car_register_app/core/utils/injuction.dart';
+import 'package:car_register_app/core/widgets/animate_do.dart';
+import 'package:car_register_app/core/widgets/app_bottom_nav_bar.dart';
+import 'package:car_register_app/core/widgets/toast_message.dart';
+import 'package:car_register_app/features/car_register/presentation/controllers/car_register_cubit.dart';
+import 'package:car_register_app/features/car_register/presentation/controllers/car_register_state.dart';
+import 'package:car_register_app/features/car_register/presentation/widgets/home_body.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
-import '../cubit/car_register_cubit.dart';
 
 class HomeView extends StatefulWidget {
-  const HomeView({super.key});
+  final CarRegisterCubit? cubit;
+
+  const HomeView({super.key, this.cubit});
 
   @override
   State<HomeView> createState() => _HomeViewState();
 }
 
 class _HomeViewState extends State<HomeView> {
-  int _currentIndex = 0;
-  CarRegisterState? _lastState;
+  late final CarRegisterCubit _cubit;
 
   @override
   void initState() {
     super.initState();
+    _cubit = widget.cubit ?? sl<CarRegisterCubit>();
+    AppLogger.debug('HomeView: initState');
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        context.read<CarRegisterCubit>().initializeApp();
-      }
+      if (mounted) _cubit.initializeApp();
     });
   }
 
   @override
+  void dispose() {
+    _cubit.close();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: _buildAppBar(),
-      body: BlocConsumer<CarRegisterCubit, CarRegisterState>(
+    return BlocProvider<CarRegisterCubit>.value(
+      value: _cubit,
+      child: BlocListener<CarRegisterCubit, CarRegisterState>(
         listener: (context, state) {
-          if (_lastState?.runtimeType != state.runtimeType ||
-              (_lastState is CarRegisterError &&
-                  state is CarRegisterError &&
-                  (_lastState as CarRegisterError).message != state.message)) {
-            ErrorHandler.handleError(context, state);
+          if (state case CarRegisterLoaded(
+            successMessage: final msg?,
+          ) when msg.isNotEmpty) {
+            ToastMessage.success(context, msg);
+            context.read<CarRegisterCubit>().clearSuccessMessage();
           }
-          _lastState = state;
-        },
-        builder: _buildBody,
-      ),
-      bottomNavigationBar: _buildBottomNav(),
-    );
-  }
-
-  /// Build app bar
-  PreferredSizeWidget _buildAppBar() {
-    return AppBar(
-      title: CustomFadeInDown(
-        duration: 500,
-        child: const TextApp(
-          text: 'تسجيل اللوحات',
-          type: TextAppType.bodyLarge,
-          color: AppColors.textAndIconPrimary,
-          fontWeight: FontWeight.bold,
-          fontSize: 20,
-        ),
-      ),
-      centerTitle: true,
-    );
-  }
-
-  /// Body
-  Widget _buildBody(BuildContext context, CarRegisterState state) {
-    if (state is CarRegisterLoading) {
-      return const LoadingOverlay();
-    }
-
-    if (state is CarRegisterError) {
-      return ErrorStateWidget(
-        error: state,
-        onRetry: () {
-          if (mounted) {
-            context.read<CarRegisterCubit>().initializeApp();
+          if (state case CarRegisterFailure(failure: final f)) {
+            ToastMessage.error(context, f.message);
+            context.read<CarRegisterCubit>().clearFailure();
           }
         },
-      );
-    }
-
-    if (state is CarRegisterLoaded) {
-      return _buildPageContent(state);
-    }
-
-    return const LoadingOverlay();
-  }
-
-  /// Page content based on bottom nav
-  Widget _buildPageContent(CarRegisterLoaded state) {
-    final reversedCarNumbers = List<String>.from(state.carNumbers.reversed);
-
-    if (_currentIndex == 0) {
-      return SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.all(12),
-        child: CarNumberForm(state: state),
-      );
-    } else {
-      return SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            ListHeaderWidget(carNumbers: state.carNumbers),
-            SizedBox(height: 16.h),
-            reversedCarNumbers.isEmpty
-                ? const EmptyStateWidget()
-                : CarNumbersList(numbers: reversedCarNumbers, state: state),
-          ],
+        child: Scaffold(
+          appBar: AppBar(
+            title: CustomFadeInDown(
+              duration: 500,
+              child: Text(
+                AppStrings.appTitle,
+                style: AppTextStyles.appBarTitle,
+              ),
+            ),
+            centerTitle: true,
+          ),
+          body: const HomeBody(),
+          bottomNavigationBar: const AppBottomNavBar(),
         ),
-      );
-    }
-  }
-
-  /// Bottom Navigation
-  Widget _buildBottomNav() {
-    return BottomNavigationBar(
-      backgroundColor: AppColors.backgroundSecondary,
-      currentIndex: _currentIndex,
-      onTap: (index) {
-        if (mounted) {
-          setState(() => _currentIndex = index);
-        }
-      },
-      type: BottomNavigationBarType.fixed,
-      showSelectedLabels: false,
-      showUnselectedLabels: false,
-      items: const [
-        BottomNavigationBarItem(icon: Icon(Icons.add, size: 28), label: ''),
-        BottomNavigationBarItem(icon: Icon(Icons.list, size: 28), label: ''),
-      ],
+      ),
     );
   }
 }

@@ -1,18 +1,19 @@
-// car_number_card.dart
-import 'package:car_register_app/core/theme/app_colors.dart';
-import 'package:car_register_app/core/widgets/animations/animate_do.dart';
-import 'package:car_register_app/core/widgets/common/text_app.dart';
+import 'package:car_register_app/core/constants/app_strings.dart';
+import 'package:car_register_app/core/style/font/app_text_styles.dart';
+import 'package:car_register_app/core/style/theme/app_colors.dart';
+import 'package:car_register_app/core/widgets/animate_do.dart';
+import 'package:car_register_app/features/car_register/data/models/car_number_model.dart';
 import 'package:flutter/material.dart';
 
 class CarNumberCard extends StatelessWidget {
-  final String number;
+  final CarNumberModel model;
   final int index;
   final bool isDeleting;
   final VoidCallback onDelete;
 
   const CarNumberCard({
     super.key,
-    required this.number,
+    required this.model,
     required this.index,
     required this.isDeleting,
     required this.onDelete,
@@ -29,8 +30,14 @@ class CarNumberCard extends StatelessWidget {
         child: ListTile(
           contentPadding: const EdgeInsets.all(16),
           leading: _buildLeadingIcon(),
-          title: _buildTitle(),
-          subtitle: _buildSubtitle(),
+          title: Text(
+            model.number,
+            style: AppTextStyles.titleLarge,
+          ),
+          subtitle: Text(
+            '${AppStrings.registrationDate}${model.createdAt.toString().substring(0, 10)}',
+            style: AppTextStyles.bodyXSmall,
+          ),
           trailing: _buildTrailing(),
         ),
       ),
@@ -49,25 +56,6 @@ class CarNumberCard extends StatelessWidget {
     );
   }
 
-  Widget _buildTitle() {
-    return TextApp(
-      text: number,
-      type: TextAppType.bodyLarge,
-      color: AppColors.textAndIconPrimary,
-      fontWeight: FontWeight.bold,
-      fontSize: 20,
-    );
-  }
-
-  Widget _buildSubtitle() {
-    return TextApp(
-      text: 'تاريخ التسجيل: ${DateTime.now().toString().substring(0, 10)}',
-      type: TextAppType.bodySmall,
-      color: AppColors.textAndIconSecondary,
-      fontSize: 12,
-    );
-  }
-
   Widget _buildTrailing() {
     if (isDeleting) {
       return const SizedBox(
@@ -79,7 +67,6 @@ class CarNumberCard extends StatelessWidget {
         ),
       );
     }
-
     return IconButton(
       icon: const Icon(Icons.delete_forever, color: AppColors.red, size: 26),
       onPressed: onDelete,
