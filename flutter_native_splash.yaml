@@ -12,7 +12,6 @@ flutter_native_splash:
     image_dark: assets/splash/splash.png
     icon_background_color_dark: "#17426C"
 
-  # المنصات
   android: true
   ios: true
   web: false
