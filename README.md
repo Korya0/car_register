@@ -33,6 +33,24 @@
 
 ---
 
+## 📸 App Preview
+
+<div align="center">
+
+<img src="readme_assets/all_views.jpg" width="100%" alt="App Screens" />
+
+<br/>
+<br/>
+
+| | |
+|:---:|:---:|
+| <img src="readme_assets/car_plate_gif.gif" width="180"/> | <img src="readme_assets/all_views.jpg" width="180"/> |
+| **Live Demo** | **All Views** |
+
+</div>
+
+---
+
 ## 🚀 Key Features
 
 <details>
@@ -86,29 +104,6 @@
 
 ---
 
-## 💻 Getting Started
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/Korya0/car_register.git
-   ```
-
-2. **Install dependencies**
-   ```bash
-   flutter pub get
-   ```
-
-3. **Add your credentials**
-   - Place your Google Service Account JSON file at `assets/credentials.json`
-   - Update `lib/core/config/app_config.dart` with your `spreadsheetId`
-
-4. **Run the project**
-   ```bash
-   flutter run
-   ```
-
----
-
 ## 📅 Roadmap
 
 - [x] Core registration & Google Sheets sync
@@ -117,12 +112,6 @@
 - [x] Internal cache for faster reads
 - [x] Comprehensive Project Documentation
 - [ ] Unit & widget testing
-
----
-
-## 📄 License
-
-Distributed under the **MIT License**. See `LICENSE` for more information.
 
 ---
 
