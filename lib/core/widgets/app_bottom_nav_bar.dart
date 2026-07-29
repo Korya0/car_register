@@ -24,8 +24,8 @@ class AppBottomNavBar extends StatelessWidget {
       currentIndex: currentIndex,
       onTap: (index) {
         context.read<CarRegisterCubit>().setCurrentPage(
-              index == 0 ? AppPageView.add : AppPageView.list,
-            );
+          index == 0 ? AppPageView.add : AppPageView.list,
+        );
       },
       type: BottomNavigationBarType.fixed,
       showSelectedLabels: false,
