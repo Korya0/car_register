@@ -15,8 +15,8 @@ class ListHeaderWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final count = context.select<CarRegisterCubit, int>((cubit) {
       return switch (cubit.state) {
-        CarRegisterLoaded s => s.carNumbers.length,
-        CarRegisterFailure s => s.carNumbers.length,
+        final CarRegisterLoaded s => s.carNumbers.length,
+        final CarRegisterFailure s => s.carNumbers.length,
         _ => 0,
       };
     });

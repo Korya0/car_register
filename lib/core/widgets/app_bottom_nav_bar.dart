@@ -12,8 +12,8 @@ class AppBottomNavBar extends StatelessWidget {
     final currentIndex = context.select<CarRegisterCubit, int>((cubit) {
       final state = cubit.state;
       final page = switch (state) {
-        CarRegisterLoaded s => s.currentPage,
-        CarRegisterFailure s => s.currentPage,
+        final CarRegisterLoaded s => s.currentPage,
+        final CarRegisterFailure s => s.currentPage,
         _ => AppPageView.add,
       };
       return page == AppPageView.add ? 0 : 1;

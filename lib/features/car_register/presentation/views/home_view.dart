@@ -12,9 +12,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class HomeView extends StatefulWidget {
-  final CarRegisterCubit? cubit;
 
   const HomeView({super.key, this.cubit});
+  final CarRegisterCubit? cubit;
 
   @override
   State<HomeView> createState() => _HomeViewState();

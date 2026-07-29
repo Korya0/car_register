@@ -4,20 +4,20 @@ import 'package:car_register_app/core/style/theme/app_colors.dart';
 import 'package:flutter/material.dart';
 
 class CarSubmitButton extends StatelessWidget {
+
+  const CarSubmitButton({
+    required this.isLoading,
+    required this.onTap,
+    super.key,
+    this.onLongPress,
+    this.text = AppStrings.savePlate,
+    this.icon,
+  });
   final bool isLoading;
   final VoidCallback? onTap;
   final VoidCallback? onLongPress;
   final String text;
   final IconData? icon;
-
-  const CarSubmitButton({
-    super.key,
-    required this.isLoading,
-    required this.onTap,
-    this.onLongPress,
-    this.text = AppStrings.savePlate,
-    this.icon,
-  });
 
   @override
   Widget build(BuildContext context) {

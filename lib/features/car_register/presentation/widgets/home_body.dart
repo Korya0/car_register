@@ -1,8 +1,8 @@
 import 'package:car_register_app/features/car_register/presentation/controllers/car_register_cubit.dart';
 import 'package:car_register_app/features/car_register/presentation/controllers/car_register_state.dart';
 import 'package:car_register_app/features/car_register/presentation/widgets/add_car_number_widget.dart';
-import 'package:car_register_app/features/car_register/presentation/widgets/list_car_numbers_widget.dart';
 import 'package:car_register_app/features/car_register/presentation/widgets/error_state_widget.dart';
+import 'package:car_register_app/features/car_register/presentation/widgets/list_car_numbers_widget.dart';
 import 'package:car_register_app/features/car_register/presentation/widgets/skeleton_screens.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

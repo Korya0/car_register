@@ -1,5 +1,5 @@
+import 'package:car_register_app/core/error/failure.dart';
 import 'package:flutter/foundation.dart';
-import 'failure.dart';
 
 sealed class Result<T> {
   const Result();

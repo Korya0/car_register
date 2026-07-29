@@ -3,9 +3,9 @@ import 'package:flutter/foundation.dart';
 
 @immutable
 sealed class Failure {
-  final String message;
 
   const Failure(this.message);
+  final String message;
 
   @override
   bool operator ==(Object other) {

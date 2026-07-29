@@ -25,16 +25,16 @@ class Validators {
 }
 
 class CarNumberTextField extends StatelessWidget {
-  final TextEditingController controller;
-  final String? hintText;
-  final IconData? suffixIcon;
 
   const CarNumberTextField({
-    super.key,
     required this.controller,
+    super.key,
     this.hintText = AppStrings.enterPlateNumber,
     this.suffixIcon = Icons.directions_car,
   });
+  final TextEditingController controller;
+  final String? hintText;
+  final IconData? suffixIcon;
 
   @override
   Widget build(BuildContext context) {

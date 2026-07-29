@@ -6,18 +6,18 @@ import 'package:car_register_app/features/car_register/data/models/car_number_mo
 import 'package:flutter/material.dart';
 
 class CarNumberCard extends StatelessWidget {
-  final CarNumberModel model;
-  final int index;
-  final bool isDeleting;
-  final VoidCallback onDelete;
 
   const CarNumberCard({
-    super.key,
     required this.model,
     required this.index,
     required this.isDeleting,
     required this.onDelete,
+    super.key,
   });
+  final CarNumberModel model;
+  final int index;
+  final bool isDeleting;
+  final VoidCallback onDelete;
 
   @override
   Widget build(BuildContext context) {
@@ -30,10 +30,7 @@ class CarNumberCard extends StatelessWidget {
         child: ListTile(
           contentPadding: const EdgeInsets.all(16),
           leading: _buildLeadingIcon(),
-          title: Text(
-            model.number,
-            style: AppTextStyles.titleLarge,
-          ),
+          title: Text(model.number, style: AppTextStyles.titleLarge),
           subtitle: Text(
             '${AppStrings.registrationDate}${model.createdAt.toString().substring(0, 10)}',
             style: AppTextStyles.bodyXSmall,

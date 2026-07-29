@@ -17,10 +17,7 @@ class ToastMessage {
     _currentToast?.remove();
     final overlay = Overlay.of(context);
     final overlayEntry = OverlayEntry(
-      builder: (context) => _ToastWidget(
-        message: message,
-        type: type,
-      ),
+      builder: (context) => _ToastWidget(message: message, type: type),
     );
     _currentToast = overlayEntry;
     overlay.insert(overlayEntry);
@@ -30,31 +27,44 @@ class ToastMessage {
     });
   }
 
-  static void success(BuildContext context, String message, {Duration duration = const Duration(seconds: 3)}) {
+  static void success(
+    BuildContext context,
+    String message, {
+    Duration duration = const Duration(seconds: 3),
+  }) {
     show(context, message, type: ToastType.success, duration: duration);
   }
 
-  static void error(BuildContext context, String message, {Duration duration = const Duration(seconds: 4)}) {
+  static void error(
+    BuildContext context,
+    String message, {
+    Duration duration = const Duration(seconds: 4),
+  }) {
     show(context, message, type: ToastType.error, duration: duration);
   }
 
-  static void warning(BuildContext context, String message, {Duration duration = const Duration(seconds: 3)}) {
+  static void warning(
+    BuildContext context,
+    String message, {
+    Duration duration = const Duration(seconds: 3),
+  }) {
     show(context, message, type: ToastType.warning, duration: duration);
   }
 
-  static void info(BuildContext context, String message, {Duration duration = const Duration(seconds: 2)}) {
-    show(context, message, type: ToastType.info, duration: duration);
+  static void info(
+    BuildContext context,
+    String message, {
+    Duration duration = const Duration(seconds: 2),
+  }) {
+    show(context, message, duration: duration);
   }
 }
 
 class _ToastWidget extends StatelessWidget {
+
+  const _ToastWidget({required this.message, required this.type});
   final String message;
   final ToastType type;
-
-  const _ToastWidget({
-    required this.message,
-    required this.type,
-  });
 
   Color get _backgroundColor {
     switch (type) {

@@ -36,8 +36,8 @@ class _NumbersListSection extends StatelessWidget {
     final numbers = context.select<CarRegisterCubit, List<CarNumberModel>>((cubit) {
       final state = cubit.state;
       final nums = switch (state) {
-        CarRegisterLoaded s => s.carNumbers,
-        CarRegisterFailure s => s.carNumbers,
+        final CarRegisterLoaded s => s.carNumbers,
+        final CarRegisterFailure s => s.carNumbers,
         _ => const <CarNumberModel>[],
       };
       return List<CarNumberModel>.from(nums.reversed);

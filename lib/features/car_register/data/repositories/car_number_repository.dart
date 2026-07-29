@@ -5,10 +5,10 @@ import 'package:car_register_app/features/car_register/data/datasources/car_numb
 import 'package:car_register_app/features/car_register/data/models/car_number_model.dart';
 
 class CarNumberRepository {
-  final CarNumberRemoteDataSource _remote;
-  final CarNumberLocalDataSource _local;
 
   CarNumberRepository(this._remote, this._local);
+  final CarNumberRemoteDataSource _remote;
+  final CarNumberLocalDataSource _local;
 
   Future<Result<void>> initialize() async {
     await _local.initialize();

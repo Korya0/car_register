@@ -6,30 +6,30 @@ import 'package:car_register_app/features/car_register/presentation/controllers/
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CarRegisterCubit extends Cubit<CarRegisterState> {
-  final CarNumberRepository _repository;
 
   CarRegisterCubit(this._repository) : super(const CarRegisterInitial());
+  final CarNumberRepository _repository;
 
   List<CarNumberModel> get _currentNumbers => switch (state) {
-        CarRegisterLoaded s => s.carNumbers,
-        CarRegisterFailure s => s.carNumbers,
+        final CarRegisterLoaded s => s.carNumbers,
+        final CarRegisterFailure s => s.carNumbers,
         _ => const [],
       };
 
   AppPageView get _currentPage => switch (state) {
-        CarRegisterLoaded s => s.currentPage,
-        CarRegisterFailure s => s.currentPage,
+        final CarRegisterLoaded s => s.currentPage,
+        final CarRegisterFailure s => s.currentPage,
         _ => AppPageView.add,
       };
 
   Future<void> initializeApp() async {
     emit(const CarRegisterLoading());
     final result = await _repository.initialize();
-    result.when(
+    await result.when(
       success: (_) async {
         await _loadCarNumbers();
       },
-      failure: (f) {
+      failure: (f) async {
         emit(CarRegisterFailure(failure: f));
       },
     );
@@ -39,10 +39,10 @@ class CarRegisterCubit extends Cubit<CarRegisterState> {
     final loaded = _assertLoaded();
     if (loaded == null) return;
     emit(loaded.copyWith(isAddingNumber: true));
-    
+
     final newModel = CarNumberModel(number: number);
     final result = await _repository.addNumber(newModel);
-    
+
     result.when(
       success: (added) {
         if (added) {
@@ -146,13 +146,13 @@ class CarRegisterCubit extends Cubit<CarRegisterState> {
   }
 
   void clearSuccessMessage() {
-    if (state case CarRegisterLoaded s) {
-      emit(s.copyWith(successMessage: null));
+    if (state case final CarRegisterLoaded s) {
+      emit(s.copyWith());
     }
   }
 
   void clearFailure() {
-    if (state case CarRegisterFailure s) {
+    if (state case final CarRegisterFailure s) {
       emit(CarRegisterLoaded(
         carNumbers: s.carNumbers,
         currentPage: s.currentPage,
@@ -161,7 +161,7 @@ class CarRegisterCubit extends Cubit<CarRegisterState> {
   }
 
   CarRegisterLoaded? _assertLoaded() {
-    if (state case CarRegisterLoaded s) return s;
+    if (state case final CarRegisterLoaded s) return s;
     return null;
   }
 

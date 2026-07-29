@@ -7,14 +7,14 @@ class AppTransitions {
   static const Duration _duration = Duration(milliseconds: 300);
   static const Duration _reverseDuration = Duration(milliseconds: 250);
 
-  static CustomTransitionPage size({
+  static CustomTransitionPage<void> size({
     required BuildContext context,
     required GoRouterState state,
     required Widget child,
     Duration? duration,
     Duration? reverseDuration,
   }) {
-    return CustomTransitionPage(
+    return CustomTransitionPage<void>(
       key: state.pageKey,
       child: child,
       transitionDuration: duration ?? _duration,

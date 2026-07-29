@@ -1,18 +1,18 @@
 import 'package:car_register_app/core/constants/app_strings.dart';
-import 'package:car_register_app/core/utils/app_logger.dart';
 import 'package:car_register_app/core/style/font/app_text_styles.dart';
 import 'package:car_register_app/core/style/theme/app_colors.dart';
+import 'package:car_register_app/core/utils/app_logger.dart';
+import 'package:car_register_app/features/car_register/data/models/car_number_model.dart';
 import 'package:car_register_app/features/car_register/presentation/controllers/car_register_cubit.dart';
 import 'package:car_register_app/features/car_register/presentation/widgets/car_number_card_widget.dart';
 import 'package:car_register_app/features/car_register/presentation/widgets/pin_verification_dialog.dart';
-import 'package:car_register_app/features/car_register/data/models/car_number_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class CarNumbersList extends StatefulWidget {
-  final List<CarNumberModel> numbers;
 
-  const CarNumbersList({super.key, required this.numbers});
+  const CarNumbersList({required this.numbers, super.key});
+  final List<CarNumberModel> numbers;
 
   @override
   State<CarNumbersList> createState() => _CarNumbersListState();
@@ -100,7 +100,9 @@ class _CarNumbersListState extends State<CarNumbersList> {
               color: AppColors.primary,
             ),
             label: Text(
-              _selected.length == widget.numbers.length ? AppStrings.deselectAll : AppStrings.selectAll,
+              _selected.length == widget.numbers.length
+                  ? AppStrings.deselectAll
+                  : AppStrings.selectAll,
               style: AppTextStyles.bodySmall,
             ),
           ),
@@ -135,9 +137,9 @@ class _CarNumbersListState extends State<CarNumbersList> {
     });
   }
 
-  void _deleteCarNumber(String number) {
+  Future<void> _deleteCarNumber(String number) async {
     if (!mounted) return;
-    showDialog(
+    final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Row(
@@ -147,7 +149,9 @@ class _CarNumbersListState extends State<CarNumbersList> {
             Text(AppStrings.confirmDelete),
           ],
         ),
-        content: Text('${AppStrings.confirmDeleteSinglePrefix}$number${AppStrings.confirmDeleteSingleSuffix}'),
+        content: Text(
+          '${AppStrings.confirmDeleteSinglePrefix}$number${AppStrings.confirmDeleteSingleSuffix}',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -167,20 +171,27 @@ class _CarNumbersListState extends State<CarNumbersList> {
         ],
       ),
     );
+    if ((confirmed ?? false) && mounted) {
+      _confirmDelete(number);
+    }
   }
 
   void _confirmDelete(String number) {
     AppLogger.debug('UI: confirm delete number $number');
     setState(() => _deletingNumber = number);
-    context.read<CarRegisterCubit>().deleteCarNumber(number).then((_) {
-      if (mounted) setState(() => _deletingNumber = null);
-    }).catchError((error) {
-      AppLogger.warn('UI: unexpected error during delete', error: error);
-      if (mounted) setState(() => _deletingNumber = null);
-    });
+    context
+        .read<CarRegisterCubit>()
+        .deleteCarNumber(number)
+        .then((_) {
+          if (mounted) setState(() => _deletingNumber = null);
+        })
+        .catchError((Object error) {
+          AppLogger.warn('UI: unexpected error during delete', error: error);
+          if (mounted) setState(() => _deletingNumber = null);
+        });
   }
 
-  void _confirmDeleteSelected() async {
+  Future<void> _confirmDeleteSelected() async {
     if (_selected.isEmpty) return;
     final numbers = List<String>.from(_selected);
     AppLogger.debug('UI: confirm delete ${numbers.length} selected numbers');
@@ -206,13 +217,14 @@ class _CarNumbersListState extends State<CarNumbersList> {
       ),
     );
 
-    if (confirmed == true && mounted) {
+    if ((confirmed ?? false) && mounted) {
       final pinVerified = await PinVerificationDialog.show(context);
       if (pinVerified && mounted) {
-        AppLogger.debug('UI: executing batch delete for ${numbers.length} numbers');
-        context.read<CarRegisterCubit>().deleteMultiple(numbers).then((_) {
-          if (mounted) setState(() => _selected.clear());
-        });
+        AppLogger.debug(
+          'UI: executing batch delete for ${numbers.length} numbers',
+        );
+        await context.read<CarRegisterCubit>().deleteMultiple(numbers);
+        if (mounted) setState(_selected.clear);
       }
     }
   }

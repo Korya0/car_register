@@ -4,10 +4,10 @@ import 'package:car_register_app/features/car_register/data/datasources/car_numb
 import 'package:car_register_app/features/car_register/data/models/car_number_model.dart';
 
 class SharedPrefCarNumberLocalDataSourceImpl implements CarNumberLocalDataSource {
-  final SharedPref _sharedPref;
-  static const String _storageKey = 'car_numbers';
 
   SharedPrefCarNumberLocalDataSourceImpl(this._sharedPref);
+  final SharedPref _sharedPref;
+  static const String _storageKey = 'car_numbers';
 
   @override
   Future<void> initialize() async {
@@ -17,21 +17,23 @@ class SharedPrefCarNumberLocalDataSourceImpl implements CarNumberLocalDataSource
   Future<List<CarNumberModel>> _getCache() async {
     final jsonData = _sharedPref.getString(_storageKey);
     if (jsonData != null) {
-      final List<dynamic> decoded = jsonDecode(jsonData);
+      final decoded = jsonDecode(jsonData) as List<dynamic>;
       return decoded.map((json) => CarNumberModel.fromJson(json as Map<String, dynamic>)).toList();
     }
     return [];
   }
 
   Future<void> _setCache(List<CarNumberModel> cache) async {
-    final List<Map<String, dynamic>> jsonList = cache.map((e) => e.toJson()).toList();
+    final jsonList = cache.map((e) => e.toJson()).toList();
     await _sharedPref.setString(_storageKey, jsonEncode(jsonList));
   }
 
   @override
   Future<List<CarNumberModel>> getAllNumbers() async {
-    return await _getCache();
+    return _getCache();
   }
+
+
 
   @override
   Future<bool> addNumber(CarNumberModel number) async {

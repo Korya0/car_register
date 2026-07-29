@@ -5,14 +5,14 @@ import 'package:car_register_app/core/widgets/animate_do.dart';
 import 'package:flutter/material.dart';
 
 class ErrorStateWidget extends StatelessWidget {
-  final String message;
-  final VoidCallback onRetry;
 
   const ErrorStateWidget({
-    super.key,
     required this.message,
     required this.onRetry,
+    super.key,
   });
+  final String message;
+  final VoidCallback onRetry;
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +24,7 @@ class ErrorStateWidget extends StatelessWidget {
           height: MediaQuery.of(context).size.height - 100,
           child: Center(
             child: Padding(
-              padding: const EdgeInsets.all(32.0),
+              padding: const EdgeInsets.all(32),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -43,7 +43,10 @@ class ErrorStateWidget extends StatelessWidget {
                   GestureDetector(
                     onTap: onRetry,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 32,
+                        vertical: 16,
+                      ),
                       decoration: BoxDecoration(
                         color: AppColors.primary,
                         borderRadius: BorderRadius.circular(12),

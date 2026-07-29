@@ -1,7 +1,7 @@
-import 'package:car_register_app/core/utils/injuction.dart';
 import 'package:car_register_app/core/router/app_router.dart';
 import 'package:car_register_app/core/style/theme/app_colors.dart';
 import 'package:car_register_app/core/style/theme/app_theme.dart';
+import 'package:car_register_app/core/utils/injuction.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -28,7 +28,6 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ScreenUtilInit(
-      designSize: const Size(360, 690),
       minTextAdapt: true,
       splitScreenMode: true,
       child: MaterialApp.router(

@@ -10,27 +10,21 @@ import 'package:get_it/get_it.dart';
 final sl = GetIt.instance;
 
 Future<void> setupInjector() async {
-  // Core Services
-  sl.registerLazySingleton<SharedPref>(() => SharedPref());
-
-  // Data Sources
-  sl.registerLazySingleton<CarNumberLocalDataSource>(
-    () => SharedPrefCarNumberLocalDataSourceImpl(sl<SharedPref>()),
-  );
-  sl.registerLazySingleton<CarNumberRemoteDataSource>(
-    () => GSheetsCarNumberRemoteDataSourceImpl(),
-  );
-
-  // Repository
-  sl.registerLazySingleton<CarNumberRepository>(
-    () => CarNumberRepository(
-      sl<CarNumberRemoteDataSource>(),
-      sl<CarNumberLocalDataSource>(),
-    ),
-  );
-
-  // Cubit
-  sl.registerFactory<CarRegisterCubit>(
-    () => CarRegisterCubit(sl<CarNumberRepository>()),
-  );
+  sl
+    ..registerLazySingleton<SharedPref>(SharedPref.new)
+    ..registerLazySingleton<CarNumberLocalDataSource>(
+      () => SharedPrefCarNumberLocalDataSourceImpl(sl<SharedPref>()),
+    )
+    ..registerLazySingleton<CarNumberRemoteDataSource>(
+      GSheetsCarNumberRemoteDataSourceImpl.new,
+    )
+    ..registerLazySingleton<CarNumberRepository>(
+      () => CarNumberRepository(
+        sl<CarNumberRemoteDataSource>(),
+        sl<CarNumberLocalDataSource>(),
+      ),
+    )
+    ..registerFactory<CarRegisterCubit>(
+      () => CarRegisterCubit(sl<CarNumberRepository>()),
+    );
 }

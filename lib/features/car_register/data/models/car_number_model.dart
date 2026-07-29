@@ -1,9 +1,10 @@
+import 'package:flutter/foundation.dart';
+
+@immutable
 class CarNumberModel {
-  final String number;
-  final DateTime createdAt;
 
   CarNumberModel({required this.number, DateTime? createdAt})
-      : createdAt = createdAt ?? DateTime.now();
+    : createdAt = createdAt ?? DateTime.now();
 
   factory CarNumberModel.fromJson(Map<String, dynamic> json) {
     return CarNumberModel(
@@ -13,12 +14,11 @@ class CarNumberModel {
           : DateTime.now(),
     );
   }
+  final String number;
+  final DateTime createdAt;
 
   Map<String, dynamic> toJson() {
-    return {
-      'number': number,
-      'createdAt': createdAt.toIso8601String(),
-    };
+    return {'number': number, 'createdAt': createdAt.toIso8601String()};
   }
 
   CarNumberModel copyWith({String? number, DateTime? createdAt}) {

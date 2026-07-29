@@ -8,16 +8,16 @@ enum KeypadAction { digit, delete, submit, clear }
 typedef KeypadCallback = void Function(KeypadAction action, [String? value]);
 
 class CustomKeypad extends StatelessWidget {
-  final KeypadCallback onKeyPressed;
-  final double? keySpacing;
-  final double? keyBorderRadius;
 
   const CustomKeypad({
-    super.key,
     required this.onKeyPressed,
+    super.key,
     this.keySpacing = 12,
     this.keyBorderRadius = 16,
   });
+  final KeypadCallback onKeyPressed;
+  final double? keySpacing;
+  final double? keyBorderRadius;
 
   static const List<KeypadKey> _keys = [
     KeypadKey(label: '1', action: KeypadAction.digit),
@@ -63,24 +63,24 @@ class CustomKeypad extends StatelessWidget {
 }
 
 class KeypadKey {
+
+  const KeypadKey({required this.label, required this.action, this.icon});
   final String label;
   final KeypadAction action;
   final IconData? icon;
-
-  const KeypadKey({required this.label, required this.action, this.icon});
 }
 
 class KeypadButton extends StatefulWidget {
-  final KeypadKey keypadKey;
-  final double borderRadius;
-  final VoidCallback onTap;
 
   const KeypadButton({
-    super.key,
     required this.keypadKey,
     required this.borderRadius,
     required this.onTap,
+    super.key,
   });
+  final KeypadKey keypadKey;
+  final double borderRadius;
+  final VoidCallback onTap;
 
   @override
   State<KeypadButton> createState() => _KeypadButtonState();
@@ -99,7 +99,7 @@ class _KeypadButtonState extends State<KeypadButton>
       duration: const Duration(milliseconds: 150),
       vsync: this,
     );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.92).animate(
+    _scaleAnimation = Tween<double>(begin: 1, end: 0.92).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
     );
   }
@@ -146,19 +146,18 @@ class _KeypadButtonState extends State<KeypadButton>
                 offset: const Offset(0, 4),
               ),
             ],
-      border: Border.all(color: AppColors.primary.withValues(alpha: 0.2), width: 1),
+      border: Border.all(color: AppColors.primary.withValues(alpha: 0.2)),
     );
   }
 
   Color _getButtonColor() {
-    return _isPressed ? AppColors.primary.withValues(alpha: 0.8) : AppColors.primary;
+    return _isPressed
+        ? AppColors.primary.withValues(alpha: 0.8)
+        : AppColors.primary;
   }
 
   Widget _buildButtonContent() {
-    return Text(
-      widget.keypadKey.label,
-      style: AppTextStyles.keypadDigit,
-    );
+    return Text(widget.keypadKey.label, style: AppTextStyles.keypadDigit);
   }
 
   void _handleTapDown() {

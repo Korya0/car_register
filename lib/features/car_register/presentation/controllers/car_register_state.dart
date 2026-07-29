@@ -16,11 +16,6 @@ class CarRegisterLoading extends CarRegisterState {
 }
 
 class CarRegisterLoaded extends CarRegisterState {
-  final List<CarNumberModel> carNumbers;
-  final bool isAddingNumber;
-  final bool isDeletingNumber;
-  final AppPageView currentPage;
-  final String? successMessage;
 
   const CarRegisterLoaded({
     this.carNumbers = const [],
@@ -29,6 +24,11 @@ class CarRegisterLoaded extends CarRegisterState {
     this.currentPage = AppPageView.add,
     this.successMessage,
   });
+  final List<CarNumberModel> carNumbers;
+  final bool isAddingNumber;
+  final bool isDeletingNumber;
+  final AppPageView currentPage;
+  final String? successMessage;
 
   CarRegisterLoaded copyWith({
     List<CarNumberModel>? carNumbers,
@@ -48,13 +48,13 @@ class CarRegisterLoaded extends CarRegisterState {
 }
 
 class CarRegisterFailure extends CarRegisterState {
-  final Failure failure;
-  final List<CarNumberModel> carNumbers;
-  final AppPageView currentPage;
 
   const CarRegisterFailure({
     required this.failure,
     this.carNumbers = const [],
     this.currentPage = AppPageView.add,
   });
+  final Failure failure;
+  final List<CarNumberModel> carNumbers;
+  final AppPageView currentPage;
 }
