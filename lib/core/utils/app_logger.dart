@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:logger/logger.dart';
 
 class AppLogger {
+  static bool enabled = true;
+
   static final Logger _logger = Logger(
     printer: PrettyPrinter(
       errorMethodCount: 3,
@@ -10,19 +12,19 @@ class AppLogger {
   );
 
   static void info(String message) {
-    if (kDebugMode) _logger.i(message);
+    if (enabled && kDebugMode) _logger.i(message);
   }
 
   static void debug(String message) {
-    if (kDebugMode) _logger.d(message);
+    if (enabled && kDebugMode) _logger.d(message);
   }
 
   static void warn(String message, {Object? error, StackTrace? stackTrace}) {
-    if (kDebugMode) _logger.w(message, error: error, stackTrace: stackTrace);
+    if (enabled && kDebugMode) _logger.w(message, error: error, stackTrace: stackTrace);
   }
 
   static void success(String message) {
-    if (kDebugMode) _logger.i('✅ $message');
+    if (enabled && kDebugMode) _logger.i('✅ $message');
   }
 
   static void error(
@@ -30,7 +32,7 @@ class AppLogger {
     Object? error,
     StackTrace? stackTrace,
   }) {
-    if (kDebugMode) {
+    if (enabled && kDebugMode) {
       _logger.e(message, error: error, stackTrace: stackTrace);
     }
   }

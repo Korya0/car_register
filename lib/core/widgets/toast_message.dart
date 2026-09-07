@@ -22,8 +22,14 @@ class ToastMessage {
     _currentToast = overlayEntry;
     overlay.insert(overlayEntry);
     Future.delayed(duration, () {
-      overlayEntry.remove();
-      _currentToast = null;
+      // Only remove if still mounted – the entry may have already been
+      // removed during widget tree teardown (e.g. test cleanup).
+      if (overlayEntry.mounted) {
+        overlayEntry.remove();
+      }
+      if (_currentToast == overlayEntry) {
+        _currentToast = null;
+      }
     });
   }
 
