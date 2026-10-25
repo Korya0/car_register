@@ -217,7 +217,7 @@ class GSheetsCarNumberRemoteDataSourceImpl
         );
       }
       final result = await getAllNumbers();
-      return result.when(
+      return await result.when(
         success: (models) => Result.success(
           models.any((model) => model.number == trimmedNumber),
         ),

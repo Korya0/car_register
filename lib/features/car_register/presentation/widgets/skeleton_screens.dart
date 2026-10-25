@@ -60,7 +60,7 @@ class AddPageSkeleton extends StatelessWidget {
                   crossAxisSpacing: 12,
                   childAspectRatio: 1.1,
                 ),
-                itemBuilder: (_, __) => Container(
+                itemBuilder: (_, _) => Container(
                   decoration: BoxDecoration(
                     color: AppColors.primary,
                     borderRadius: BorderRadius.circular(16),

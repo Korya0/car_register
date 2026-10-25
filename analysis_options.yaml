@@ -1,11 +1,26 @@
-include: package:very_good_analysis/analysis_options.yaml
+include: package:flutter_lints/flutter.yaml
+
+formatter:
+  trailing_commas: preserve
 
 analyzer:
+  exclude:
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+    - build/**
+    - android/**
+    - ios/**
+    - web/**
   errors:
     invalid_annotation_target: ignore
 
 linter:
   rules:
-    public_member_api_docs: false
-    lines_longer_than_80_chars: false
-    library_private_types_in_public_api: false
+    require_trailing_commas: true
+    prefer_single_quotes: true
+    prefer_const_declarations: true
+    prefer_const_constructors: true
+    prefer_final_locals: true
+    unnecessary_this: true
+    avoid_print: true
+

@@ -176,6 +176,7 @@ Future<void> setupTestInjector() async {
 // ---------------------------------------------------------------------------
 
 class InMemoryCarNumberLocalDataSource implements CarNumberLocalDataSource {
+  // ignore: library_private_types_in_public_api
   InMemoryCarNumberLocalDataSource(this._sharedPref);
   final _MockSharedPref _sharedPref;
   static const String _storageKey = 'car_numbers';
